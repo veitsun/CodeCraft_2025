@@ -1,4 +1,4 @@
-#include "../header/disk.h"
+#include "disk.h"
 
 using namespace std;
 
