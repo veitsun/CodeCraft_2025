@@ -15,22 +15,29 @@ using namespace std;
 
 class Disk {
 private:
-  int diskId; // 磁盘块号
-  // 该对象所对应磁盘块号的磁盘单元数组,磁盘单元里所存的数据结构还不确定
   std::vector<void *> storage[MAX_DISK_SIZE];
+  // std::vector<int> storage[MAX_DISK_SIZE];
   void reset();
 
 public:
   Disk() {};
   ~Disk() {}
 
-  int getDiskId() const;  // 返回磁盘块号
-  void setDiskId(int id); // 修改磁盘对象所在的块号
-  std::vector<void *> getStorageValue(
-      int Unitindex) const; // 传入存储单元编号，返回磁盘单元中的数据对象
+  // int getDiskId() const;  // 返回磁盘块号
+  // void setDiskId(int id); // 修改磁盘对象所在的块号
+  // std::vector<void *> getStorageValue(
+  //     int Unitindex) const; // 传入存储单元编号，返回磁盘单元中的数据对象
   void
   setStorageValue(int Unitindex,
                   const std::vector<void *>
                       &value); // 传入存储单元编号，和要存入的对象。返回值为空
   std::vector<void *> *getStorageArray(); // 返回磁盘块的磁盘单元数组首地址
+
+  void deleteStorageValue(int Unitindex); // 删除磁盘块的磁盘单元数组中的数据
+
+  void writeValue(int unit_id, int obj_id, int obj_blockid); // 写功能
+
+  void deleteValue(int unit_id); // 删除功能
+
+  // void readValue(int unit_id); // 读功能
 };
