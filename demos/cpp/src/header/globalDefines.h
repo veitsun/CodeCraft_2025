@@ -1,3 +1,5 @@
+#pragma once
+
 #define MAX_DISK_NUM (10 + 1)
 #define MAX_DISK_SIZE (16384 + 1)
 #define MAX_REQUEST_NUM (30000000 + 1)

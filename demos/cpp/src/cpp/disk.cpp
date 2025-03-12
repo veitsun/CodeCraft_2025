@@ -1,9 +1,23 @@
-#include "../header/Disk.h"
-
-#include <vector>
+#include "../header/disk.h"
 
 using namespace std;
 
-Disk::Disk(/* args */) {}
+void Disk::reset() {
+  for (int i = 0; i < MAX_DISK_SIZE; i++) {
+    storage[i].clear();
+  }
+}
 
-Disk::~Disk() {}
+int Disk::getDiskId() const { return diskId; }
+
+void Disk::setDiskId(int id) { diskId = id; }
+
+std::vector<void *> Disk::getStorageValue(int Unitindex) const {
+  return storage[Unitindex];
+}
+
+void Disk::setStorageValue(int Unitindex, const std::vector<void *> &value) {
+  storage[Unitindex] = value;
+}
+
+std::vector<void *> *Disk::getStorageArray() { return storage; }
