@@ -53,7 +53,7 @@ void requestReceiver::requestAdd(delRequestList* del_request_list, writeRequestL
             delRequest* request_now = new delRequest();
             request_now -> setObjectId(id);
             request_now -> setTime(time_stamp);
-            del_request_list -> addList(request_now);
+            del_request_list -> setList(request_now);
         }
     }
     //写入
@@ -69,7 +69,7 @@ void requestReceiver::requestAdd(delRequestList* del_request_list, writeRequestL
             request_now -> setObjectSize(size);
             request_now -> setObjectTag(tag);
             request_now -> setTime(time_stamp);
-            write_request_list -> addList(request_now);
+            write_request_list -> setList(request_now);
         }
     }
     //读取
@@ -84,7 +84,7 @@ void requestReceiver::requestAdd(delRequestList* del_request_list, writeRequestL
             request_now -> setRequestId(request_id);
             request_now -> setObjectId(id);
             request_now -> setTime(time_stamp);
-            read_request_list -> addList(request_now);
+            read_request_list -> setList(request_now);
         }
     }
     //读取完毕
@@ -92,14 +92,14 @@ void requestReceiver::requestAdd(delRequestList* del_request_list, writeRequestL
 }
 
 //调用测试代码
-int main()
-{
-    requestReceiver* request_receiver = new requestReceiver();
-    request_receiver -> timestamp_action();
-    delRequestList* del_request_list = request_receiver -> delListInit();
-    writeRequestList* write_request_list = request_receiver -> writeListInit();
-    readRequestList* read_request_list = request_receiver -> readListInit();
-    printf("begin add\n");
-    request_receiver -> requestAdd(del_request_list, write_request_list, read_request_list);
-    printf("%d\n", write_request_list -> outList() -> getObjectId());
-}
+// int main()
+// {
+//     requestReceiver* request_receiver = new requestReceiver();
+//     request_receiver -> timestamp_action();
+//     delRequestList* del_request_list = request_receiver -> delListInit();
+//     writeRequestList* write_request_list = request_receiver -> writeListInit();
+//     readRequestList* read_request_list = request_receiver -> readListInit();
+//     printf("begin add\n");
+//     request_receiver -> requestAdd(del_request_list, write_request_list, read_request_list);
+//     printf("%d\n", write_request_list -> outList() -> getObjectId());
+// }
