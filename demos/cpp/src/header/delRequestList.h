@@ -12,8 +12,11 @@ using namespace std;
   */
 class delRequestList {
 private:
-  list<Request> del_request_list;
+  list<delRequest*> del_request_list;//待完成删除队列
 
 public:
-  delRequestList();
+  delRequestList(){};
+  void addList(delRequest* request);
+  delRequest* outList();
+  bool listIsEmpty();
 };

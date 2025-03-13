@@ -12,8 +12,11 @@ using namespace std;
   */
 class writeRequestList {
 private:
-  list<Request> write_request_list;
+  list<writeRequest*> write_request_list;
 
 public:
-  writeRequestList();
+  writeRequestList(){};
+  void addList(writeRequest* request);
+  writeRequest* outList();
+  bool listIsEmpty();
 };

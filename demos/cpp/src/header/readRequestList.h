@@ -9,12 +9,16 @@ using namespace std;
 
 /*
   待完成读请求队列类
-
+  这边还存在优化，预想的是修改数据结构，把读请求按照tag类型进行分类，挂载在不同的队列上
+  多加tag个指针，多加一个指向last_tag的int类型
   */
 class readRequestList {
 private:
-  list<Request> read_request_list;
+  list<readRequest*> read_request_list;
 
 public:
-  readRequestList();
+  readRequestList(){};
+  void addList(readRequest* request);
+  readRequest* outList();
+  bool listIsEmpty();
 };
