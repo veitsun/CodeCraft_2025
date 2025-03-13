@@ -16,7 +16,7 @@ private:
 
 public:
   delRequestList(){};
-  void addList(delRequest* request);
-  delRequest* outList();
+  void setList(delRequest* request);
+  delRequest* getList();
   bool listIsEmpty();
 };

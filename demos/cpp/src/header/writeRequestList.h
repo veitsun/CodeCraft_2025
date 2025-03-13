@@ -16,7 +16,7 @@ private:
 
 public:
   writeRequestList(){};
-  void addList(writeRequest* request);
-  writeRequest* outList();
+  void setList(writeRequest* request);
+  writeRequest* getList();
   bool listIsEmpty();
 };

@@ -18,7 +18,7 @@ private:
 
 public:
   readRequestList(){};
-  void addList(readRequest* request);
-  readRequest* outList();
+  void setList(readRequest* request);
+  readRequest* getList();
   bool listIsEmpty();
 };
