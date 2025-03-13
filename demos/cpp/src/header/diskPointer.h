@@ -13,11 +13,13 @@ using namespace std;
 */
 class DiskPointer {
 private:
-  int current_position;
-  int token;
+  // int current_position;
+  // int token;
 
 public:
-  DiskPointer();
+  int current_position;
+  int token;
+  DiskPointer(); // 在构造函数中初始化磁头位置和token，还未完成
   DiskPointer(int token);
   ~DiskPointer();
 };

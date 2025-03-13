@@ -1,36 +1,31 @@
 #include "disk.h"
+#include "diskUnit.h"
 
 using namespace std;
 
-// void Disk::Disk() {}
+void Disk::reset() { storage.clear(); }
 
-void Disk::reset() {
-  for (int i = 0; i < MAX_DISK_SIZE; i++) {
-    storage[i].clear();
-  }
+DiskUnit Disk::getStorageUnit(int Unitindex) const {
+  return storage[Unitindex];
 }
 
-// int Disk::getDiskId() const { return diskId; }
-
-// void Disk::setDiskId(int id) { diskId = id; }
-
-// std::vector<void *> Disk::getStorageValue(int Unitindex) const {
-//   return storage[Unitindex];
-// }
-
-void Disk::setStorageValue(int Unitindex, const std::vector<void *> &value) {
-  storage[Unitindex] = value;
+void Disk::setStorageUnit(int Unitindex, DiskUnit unit) {
+  storage[Unitindex] = unit;
 }
 
-std::vector<void *> *Disk::getStorageArray() { return storage; }
+std::vector<DiskUnit> Disk::getDiskState() { return storage; }
 
-void Disk::deleteStorageValue(int Unitindex) { storage[Unitindex].clear(); }
+void Disk::deleteStorageUnit(int Unitindex) {
+  storage[Unitindex].is_deleted = true;
+}
 
 void Disk::writeValue(int unit_id, int obj_id, int obj_blockid) {
-  storage[unit_id].push_back(nullptr);
+  storage[unit_id].object_id = obj_id;
+  storage[unit_id].object_block_id = obj_blockid;
+  storage[unit_id].is_deleted = false;
 }
 
-void Disk::deleteValue(int unit_id) { storage[unit_id].clear(); }
+void Disk::deleteValue(int unit_id) { storage[unit_id].is_deleted = true; }
 
 void Disk::readValue(int action, int unit_id) {
   if (action == 1) {

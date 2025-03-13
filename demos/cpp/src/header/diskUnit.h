@@ -2,15 +2,21 @@
 
 class DiskUnit {
 private:
-  int objectId;
-  int used;
+  // int object_id;
+  // int object_block_id;
+  // bool is_deleted;
+
+  // int tag_id;
 
 public:
-  virtual void clear() = 0;
+  int object_id;
+  int object_block_id;
+  bool is_deleted;
+  // virtual void clear() = 0;
 };
 
-class DiskUnitImplement1 : public DiskUnit {
-private:
-public:
-  void clear() {};
-};
+// class DiskUnitImplement1 : public DiskUnit {
+// private:
+// public:
+//   void clear() {};
+// };
