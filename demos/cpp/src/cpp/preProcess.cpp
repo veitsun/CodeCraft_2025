@@ -1,20 +1,122 @@
 #include "preProcess.h"
 
+#include "globalDefines.h"
+
 #include <iostream>
 
 using namespace std;
 
 // --------------------private--------------------
 
-void PreProcess::AcceptGlobleParameter(void) {
-  scanf("%d%d%d%d%d", &this->maxTime, &this->maxTag, &this->maxDisk,
-        &this->maxDiskSize, &this->maxToken);
-}
+// void PreProcess::AcceptGlobleParameter(void) {
+//   scanf("%d%d%d%d%d", &this->maxTime, &this->maxTag, &this->maxDisk,
+//         &this->maxDiskSize, &this->maxToken);
+// }
 
 // --------------------private--------------------
 
 // --------------------public--------------------
 
-PreProcess::PreProcess() { AcceptGlobleParameter(); };
+// PreProcess::PreProcess() { AcceptGlobleParameter(); };
+
+int PreProcess::run(){
+  scanf("%d%d%d%d%d", &maxTime, &maxTag, &maxDisk, &maxDiskSize, &maxToken);
+  int maxBigTime = (maxTime-1) / FRE_PER_SLICING;
+  
+  // 读取预处理数据
+  for (int action = 0; action < ACITON_TYPE_COUNT; action++){
+    for (int tag = 0; tag < maxTag; tag++){
+      for (int bigTime = 0; bigTime <= maxBigTime; bigTime++){
+        scanf("%*d", actionOnBlockCount[action][tag][bigTime]);
+      }
+    }
+  }
+
+  // 计算每种tag最大需要的空间
+  vector<int> rawMaxSpaceForTag;
+  int maxSpaceForAllTag = 0;
+  for (int tag = 0; tag < maxTag; tag++){
+    rawMaxSpaceForTag[tag] = actionOnBlockCount[WRITE][tag][0];
+    for (int bigTime = 1; bigTime <= maxBigTime; bigTime++){
+      rawMaxSpaceForTag[tag] += 
+          actionOnBlockCount[WRITE][tag][bigTime] - actionOnBlockCount[DELETE][tag][bigTime-1];
+    }
+    maxSpaceForAllTag += rawMaxSpaceForTag[tag];
+  }
+
+  // 伸缩空间需求
+  double  fixRadio = maxDisk * maxDiskSize / maxSpaceForAllTag * 3;
+  for (int tag = 0; tag < maxTag; tag++){
+    maxSpaceForTag[tag] = fixRadio * rawMaxSpaceForTag[tag];
+  }
+
+  // diskUsedSpace 记录磁盘已分配空间
+  vector<int> diskUsedSpace;
+  for(int diskId = 1; diskId <= maxDisk; diskId++){
+    diskUsedSpace[diskId] = 0;
+  }
+  vector<bool> haveDistributeTag;
+  // 指定tag的磁盘空间
+  for(int tag = 0; tag < maxTag; tag++){
+    // 寻找合适的一组磁盘
+    for(int currentDiskGroup = 1; currentDiskGroup*REP_NUM <= maxDisk; currentDiskGroup++){
+      int tempDiskUsedSpace = diskUsedSpace[currentDiskGroup*REP_NUM] + maxSpaceForTag[tag];
+      
+      if(tempDiskUsedSpace <= maxDiskSize){
+        // tagDistribute 就是一个tag的范围
+        TagDistribute tagDistribute = 
+            make_tuple(tag, tempDiskUsedSpace-maxSpaceForTag[tag], tempDiskUsedSpace);
+        
+        haveDistributeTag[tag] = true;
+
+        int maxDupDiskID = currentDiskGroup * REP_NUM;
+        tagRepID[tag] = make_tuple(maxDupDiskID-2, maxDupDiskID-1, maxDupDiskID);
+        for(int dupDiskID = 0; dupDiskID < REP_NUM; dupDiskID++){
+          diskUsedSpace[maxDupDiskID] = tempDiskUsedSpace;
+          tagDistributeInAllDisk[maxDupDiskID].push_back(tagDistribute);
+          maxDupDiskID--;
+        }
+      }else{
+        // 磁盘空间不足
+        currentDiskGroup++;
+        break;
+      }
+    }
+  }
+
+  // TODO：逻辑还没有理顺，还可以优化代码 
+  // 8个磁盘，3个备份，最后2个磁盘没有处理
+  // 对于没有分配的tag，寻找不连续的磁盘存放
+  // ! 不保证能分好
+  int lastDiskID = maxDisk % REP_NUM;
+  vector<int> allRepDiskID;
+  for(int tag = 0; tag < maxTag; tag++){
+    if(!haveDistributeTag[tag]){
+      int rep_num = 0;
+      for (int diskID = maxDisk; diskID >= 1; diskID--){
+        int tempDiskUsedSpace = diskUsedSpace[diskID] + maxSpaceForTag[tag];
+        if(tempDiskUsedSpace <= maxDiskSize){
+          allRepDiskID.push_back(diskID);
+          rep_num++;
+        }
+        // 找到3个备份磁盘
+        if (rep_num == REP_NUM){
+          for(int repCount = 0; repCount < REP_NUM; repCount++){
+
+            TagDistribute tagDistribute = 
+                make_tuple(tag, tempDiskUsedSpace-maxSpaceForTag[tag], tempDiskUsedSpace);
+            diskUsedSpace[allRepDiskID[repCount]] = tempDiskUsedSpace;
+            tagDistributeInAllDisk[diskID].push_back(tagDistribute);
+          }
+            haveDistributeTag[tag] = true;
+        }
+      }
+    }
+  }
+
+  // TODO: 需要发给磁盘这个分配信息
+
+  return 0;
+}
 
 // --------------------public-------------------

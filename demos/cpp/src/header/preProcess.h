@@ -1,9 +1,33 @@
 #pragma once
 
+#include "globalDefines.h"
+
 #include <vector>
 
 using namespace std;
 
+#define ACITON_TYPE_COUNT (3)
+
+/*
+  <0, 0, 100> 代表 tag0 存储在当前磁盘的 0~100
+*/
+typedef tuple<int, int, int> TagDistribute;
+/*
+  对于一个磁盘，它的 tag 分配是这样的
+  <0, 0, 100>
+  <1, 100, 200>
+  <2, 200, 300>
+*/
+typedef vector<tuple<int, int, int>> TagDistributeInDisk;
+
+enum action_type{
+  DELETE,
+  WRITE,
+  READ
+};
+
+
+extern int maxTime, maxTag, maxDisk, maxDiskSize, maxToken;
 /*
   预处理模块
     读取全局信息
@@ -15,10 +39,19 @@ using namespace std;
 */
 class PreProcess {
 private:
-  int maxTime, maxTag, maxDisk, maxDiskSize, maxToken;
-
-  void AcceptGlobleParameter(void);
-
+  /*
+    action_on_block_count[i][j][k]
+      i： 代表操作类型 delete、write、read
+      j： 代表标签类型
+      k： 代表大时间片
+  */
+  vector<vector<vector<int>>> actionOnBlockCount;
+  vector<int> maxSpaceForTag;
+  // ! tagDistributeInAllDisk[1] 才是第一个磁盘
+  vector<TagDistributeInDisk> tagDistributeInAllDisk;
+  vector<tuple<int, int, int>> tagRepID;
 public:
-  PreProcess();
+  PreProcess(){};
+  ~PreProcess(){};
+  int run();
 };
