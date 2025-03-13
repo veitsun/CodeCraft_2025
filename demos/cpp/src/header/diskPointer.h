@@ -13,11 +13,11 @@ using namespace std;
 */
 class DiskPointer {
 private:
+  int current_position;
+  int token;
+
 public:
-  DiskPointer(/* args */);
+  DiskPointer();
+  DiskPointer(int token);
   ~DiskPointer();
 };
-
-DiskPointer::DiskPointer(/* args */) {}
-
-DiskPointer::~DiskPointer() {}

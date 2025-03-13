@@ -6,23 +6,28 @@
 */
 #pragma once
 
+#include "diskPointer.h"
 #include "diskUnit.h"
 #include "globalDefines.h"
 #include <cstdio>
+#include <string>
 #include <vector>
 
 using namespace std;
 
 class Disk {
 private:
+  // 这里应该是一开是输入 V 的大小，每个磁盘的存储单元数量是固定V个的
   std::vector<void *> storage[MAX_DISK_SIZE];
+  DiskPointer pointer;
   // std::vector<int> storage[MAX_DISK_SIZE];
   void reset();
 
 public:
-  Disk() {};
+  Disk() {}
   ~Disk() {}
 
+  // 最新版本是我不需要提供磁盘块号，我只是单个磁盘的抽象
   // int getDiskId() const;  // 返回磁盘块号
   // void setDiskId(int id); // 修改磁盘对象所在的块号
   // std::vector<void *> getStorageValue(
@@ -37,7 +42,10 @@ public:
 
   void writeValue(int unit_id, int obj_id, int obj_blockid); // 写功能
 
-  void deleteValue(int unit_id); // 删除功能
+  void deleteValue(int unit_id);           // 删除功能
+  void readValue(int action, int unit_id); // 读功能
+
+  void executeAction(int action, int unit_id, int obj_id, int obj_blockid);
 
   // void readValue(int unit_id); // 读功能
 };
