@@ -63,6 +63,9 @@ public:
 
   // tuple<int tag_id, int start, int end
   vector<tuple<int, int, int>> getTagInterval(int tag) const;
+
+  pair<int, int> getDiskHead();
+  // int get
 };
 
 class NewDisk : public Disk {

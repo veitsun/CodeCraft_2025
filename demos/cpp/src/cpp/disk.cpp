@@ -102,3 +102,10 @@ vector<pair<int, int>> Disk::wherecanput(
   }
   return res;
 }
+
+pair<int, int> Disk::getDiskHead() {
+  pair<int, int> temp;
+  temp.first = pointer.current_position;
+  temp.second = pointer.token;
+  return temp;
+}

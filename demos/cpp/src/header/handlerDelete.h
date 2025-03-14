@@ -6,5 +6,5 @@ private:
 public:
   handlerdelete(/* args */) {};
   ~handlerdelete() {};
-  void handlerDelete2Disk(int unitId, int objId, int size);
+  void handlerDelete2Disk(int unitId, int size);
 };

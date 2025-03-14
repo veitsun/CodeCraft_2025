@@ -6,5 +6,5 @@ private:
 public:
   handlerread(/* args */) {};
   ~handlerread() {};
-  void handlerRead2Disk();
+  void handlerRead2Disk(int action, int unitId);
 };
