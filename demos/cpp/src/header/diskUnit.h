@@ -12,6 +12,8 @@ public:
   int object_id;
   int object_block_id;
   bool is_deleted;
+  int tag_id;
+  bool is_used;
   // virtual void clear() = 0;
 };
 

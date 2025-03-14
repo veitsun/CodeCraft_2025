@@ -11,6 +11,7 @@
 #include "globalDefines.h"
 #include "object.h"
 #include <cstdio>
+#include <new>
 #include <string>
 #include <vector>
 
@@ -21,6 +22,7 @@ private:
   // 这里应该是一开始输入 V 的大小，每个磁盘的存储单元数量是固定V个的
   std::vector<DiskUnit> storage; // storage 的大小是V
   DiskPointer pointer;
+  vector<pair<int, int>> res;
   void reset();
 
 public:
@@ -47,15 +49,24 @@ public:
 
   // void readValue(int unit_id); // 读功能
   void writeValueByTag(int unit_id, int obj_id, int obj_blockid, int tag_id);
+
+  vector<pair<int, int>>
+  getStorageUnitIntervalByTag(int tag_id) const; // 返回所有这个tag的区间
+
+  vector<pair<int, int>> wherecanput(
+      int tag_id) const; // 返回所有这个tag的区间, 并且这个区间都是空闲的
 };
 
-class DiskSon : public Disk {
+class NewDisk : public Disk {
 private:
   /* data */
   std::vector<DiskUnit> storage; // storage 的大小是V
   DiskPointer pointer;
 
 public:
-  DiskSon() { storage.resize(MAX_DISK_SIZE); } // 这个之后改成 V 大小
-  ~DiskSon() {}
+  NewDisk() { storage.resize(MAX_DISK_SIZE); } // 这个之后改成 V 大小
+  ~NewDisk() {}
+
+  vector<pair<int, int>>
+  getStorageUnitIntervalByTag(int tag_id) const; // 返回所有这个tag的区间
 };

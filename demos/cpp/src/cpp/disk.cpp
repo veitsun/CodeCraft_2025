@@ -39,3 +39,52 @@ void Disk::readValue(int action, int unit_id) {
   }
   fflush(stdout);
 }
+
+vector<pair<int, int>>
+Disk::getStorageUnitIntervalByTag(int tag_id) const // 返回所有这个tag的区间
+{
+  vector<pair<int, int>> res;
+  for (int i = 0; i < MAX_DISK_SIZE; i++) { // MAX_DISK_SIZE 这个之后应该是 V
+    if (storage[i].tag_id == tag_id) {
+      int start = i;
+      while (i < MAX_DISK_SIZE && storage[i].tag_id == tag_id) {
+        i++;
+      }
+      res.push_back(make_pair(start, i - 1));
+    }
+  }
+  return res;
+}
+
+vector<pair<int, int>>
+NewDisk::getStorageUnitIntervalByTag(int tag_id) const // 返回所有这个tag的区间
+{
+  vector<pair<int, int>> res;
+  for (int i = 0; i < MAX_DISK_SIZE; i++) { // MAX_DISK_SIZE 这个之后应该是 V
+    if (storage[i].tag_id == tag_id) {
+      int start = i;
+      while (i < MAX_DISK_SIZE && storage[i].tag_id == tag_id) {
+        i++;
+      }
+      res.push_back(make_pair(start, i - 1));
+    }
+  }
+  return res;
+}
+
+vector<pair<int, int>> Disk::wherecanput(
+    int tag_id) const // 返回所有这个tag的区间, 并且这个区间都是空闲的
+{
+  vector<pair<int, int>> res;
+  for (int i = 0; i < MAX_DISK_SIZE; i++) { // MAX_DISK_SIZE 这个之后应该是 V
+    if (storage[i].tag_id == tag_id && storage[i].is_used == false) {
+      int start = i;
+      while (i < MAX_DISK_SIZE && storage[i].tag_id == tag_id &&
+             storage[i].is_used == false) {
+        i++;
+      }
+      res.push_back(make_pair(start, i - 1));
+    }
+  }
+  return res;
+}
