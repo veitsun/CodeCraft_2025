@@ -6,6 +6,7 @@
 */
 #pragma once
 
+#include <tuple>
 #define MAX_DISK_NUM (10 + 1)
 #define MAX_DISK_SIZE (16384 + 1)
 #define MAX_REQUEST_NUM (30000000 + 1)
@@ -26,7 +27,7 @@ private:
   // 这里应该是一开始输入 V 的大小，每个磁盘的存储单元数量是固定V个的
   std::vector<DiskUnit> storage; // storage 的大小是V
   DiskPointer pointer;
-  vector<pair<int, int>> res;
+  // vector<pair<int, int>> res;
   void reset();
 
 public:
@@ -59,11 +60,15 @@ public:
 
   vector<pair<int, int>> wherecanput(
       int tag_id) const; // 返回所有这个tag的区间, 并且这个区间都是空闲的
+
+  // tuple<int tag_id, int start, int end
+  vector<tuple<int, int, int>> getTagInterval(int tag) const;
 };
 
 class NewDisk : public Disk {
 private:
   /* data */
+
   std::vector<DiskUnit> storage; // storage 的大小是V
   DiskPointer pointer;
 
