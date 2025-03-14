@@ -2,6 +2,7 @@
 
 #include "globalDefines.h"
 
+#include <tuple>
 #include <vector>
 
 using namespace std;
@@ -20,14 +21,8 @@ typedef tuple<int, int, int> TagDistribute;
 */
 typedef vector<tuple<int, int, int>> TagDistributeInDisk;
 
-enum action_type{
-  DELETE,
-  WRITE,
-  READ
-};
+enum action_type { DELETE, WRITE, READ };
 
-
-extern int maxTime, maxTag, maxDisk, maxDiskSize, maxToken;
 /*
   预处理模块
     读取全局信息
@@ -50,8 +45,9 @@ private:
   // ! tagDistributeInAllDisk[1] 才是第一个磁盘
   vector<TagDistributeInDisk> tagDistributeInAllDisk;
   vector<tuple<int, int, int>> tagRepID;
+
 public:
-  PreProcess(){};
-  ~PreProcess(){};
+  PreProcess() {};
+  ~PreProcess() {};
   int run();
 };

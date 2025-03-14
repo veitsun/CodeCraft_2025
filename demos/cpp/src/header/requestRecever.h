@@ -1,8 +1,9 @@
 #pragma once
 
-#include "request.h"
 #include "delRequestList.h"
+#include "globalDefines.h"
 #include "readRequestList.h"
+#include "request.h"
 #include "writeRequestList.h"
 #include <vector>
 
@@ -16,11 +17,12 @@ class requestReceiver {
 private:
   int time_stamp;
   int request_num;
+
 public:
   requestReceiver() : time_stamp(0), request_num(-1) {}
-  delRequestList* delListInit();
-  writeRequestList* writeListInit();
-  readRequestList* readListInit();
+  // delRequestList *delListInit();
+  // writeRequestList *writeListInit();
+  // readRequestList *readListInit();
   void timestamp_action();
-  void requestAdd(delRequestList* del_request_list, writeRequestList* write_request_list, readRequestList* read_request_list);
+  void requestAdd();
 };
