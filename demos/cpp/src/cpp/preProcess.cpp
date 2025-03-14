@@ -20,7 +20,7 @@ vector<int> maxSpaceForTag;
 vector<TagDistributeInDisk> tagDistributeInAllDisk;
 // tagRepID[0] = <1, 2, 3> 代表 tag0 在 1, 2, 3 磁盘上的备份
 // tagRepID[1] = <5, 6, 7> 代表 tag1 在 5, 6, 7 磁盘上的备份
-vector<tuple<int, int, int>> tagRepID;
+vector<vector<int>> tagRepID;
 
 // --------------------public--------------------
 
@@ -59,9 +59,11 @@ int PreProcess::run() {
   }
 
   // 伸缩空间需求
-  double fixRadio = maxDisk * maxDiskSize / maxSpaceForAllTag * 3;
-  for (int tag = 0; tag < maxTag; tag++) {
-    maxSpaceForTag[tag] = fixRadio * rawMaxSpaceForTag[tag];
+  double fixRadio = maxDisk * maxDiskSize / maxSpaceForAllTag * REP_NUM;
+  if (fixRadio < 1) {
+    for (int tag = 0; tag < maxTag; tag++) {
+      maxSpaceForTag[tag] = fixRadio * rawMaxSpaceForTag[tag];
+    }
   }
 
   // diskUsedSpace 记录磁盘已分配空间
@@ -70,15 +72,18 @@ int PreProcess::run() {
   for (int diskId = 1; diskId <= maxDisk; diskId++) {
     diskUsedSpace[diskId] = 0;
   }
+
+  // haveDistributeTag记录tag是否已分配到磁盘
   vector<bool> haveDistributeTag;
   haveDistributeTag.resize(maxTag);
-  // 指定tag的磁盘空间
+
+  // 依次为tag分配一组磁盘
   for (int tag = 0; tag < maxTag; tag++) {
-    // 寻找合适的一组磁盘
+    // 寻找合适的一组连续的磁盘
     for (int currentDiskGroup = 1; currentDiskGroup * REP_NUM <= maxDisk;
          currentDiskGroup++) {
       int tempDiskUsedSpace =
-          diskUsedSpace[currentDiskGroup * REP_NUM] + maxSpaceForTag[tag];
+          diskUsedSpace[currentDiskGroup] + maxSpaceForTag[tag];
 
       if (tempDiskUsedSpace <= maxDiskSize) {
         // tagDistribute 就是一个tag的范围
@@ -87,10 +92,9 @@ int PreProcess::run() {
 
         haveDistributeTag[tag] = true;
 
-        int maxDupDiskID = currentDiskGroup * REP_NUM;
-        tagRepID[tag] =
-            make_tuple(maxDupDiskID - 2, maxDupDiskID - 1, maxDupDiskID);
-        for (int dupDiskID = 0; dupDiskID < REP_NUM; dupDiskID++) {
+        int maxDupDiskID = currentDiskGroup * REP_NUM; // 3个备份磁盘 最大磁盘号
+        for (int dupNum = 0; dupNum < REP_NUM; dupNum++) {
+          tagRepID[tag].push_back(maxDupDiskID);
           diskUsedSpace[maxDupDiskID] = tempDiskUsedSpace;
           tagDistributeInAllDisk[maxDupDiskID].push_back(tagDistribute);
           maxDupDiskID--;
@@ -98,17 +102,20 @@ int PreProcess::run() {
       } else {
         // 磁盘空间不足
         currentDiskGroup++;
-        break;
       }
     }
   }
 
   // 对于没有分配的tag，寻找不连续的磁盘存放
   // ! 不保证能分好
-  int lastDiskID = maxDisk % REP_NUM;
+  // int lastDiskID = maxDisk % REP_NUM;
+
+  // 一个tag存放的磁盘编号
   vector<int> allRepDiskID;
   for (int tag = 0; tag < maxTag; tag++) {
+    // 还没有分配的tag
     if (!haveDistributeTag[tag]) {
+      allRepDiskID.clear();
       int rep_num = 0;
       for (int diskID = maxDisk; diskID >= 1; diskID--) {
         int tempDiskUsedSpace = diskUsedSpace[diskID] + maxSpaceForTag[tag];
@@ -119,7 +126,6 @@ int PreProcess::run() {
         // 找到3个备份磁盘
         if (rep_num == REP_NUM) {
           for (int repCount = 0; repCount < REP_NUM; repCount++) {
-
             TagDistribute tagDistribute =
                 make_tuple(tag, tempDiskUsedSpace - maxSpaceForTag[tag],
                            tempDiskUsedSpace);
