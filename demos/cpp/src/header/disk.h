@@ -40,10 +40,10 @@ public:
 
   void deleteStorageUnit(int Unitindex); // 删除磁盘块的磁盘单元数组中的数据
 
-  void writeValue(int unit_id, int obj_id, int obj_blockid); // 写功能
+  void diskWrite(int unit_id, int obj_id, int obj_size); // 写功能
 
-  void deleteValue(int unit_id);           // 删除功能
-  void readValue(int action, int unit_id); // 读功能
+  void diskDelete(int unit_id, int obj_size); // 删除功能
+  void diskRead(int action, int unit_id);     // 读功能
 
   void executeAction(int action, int unit_id, int obj_id, int obj_blockid);
 
