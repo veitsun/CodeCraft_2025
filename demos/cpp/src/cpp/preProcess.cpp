@@ -2,6 +2,7 @@
 
 #include "globalDefines.h"
 
+#include <cstdio>
 #include <iostream>
 
 using namespace std;
@@ -143,6 +144,8 @@ int PreProcess::run() {
       cout << "tag " << tag << "没有分配" << endl;
     }
   }
+
+  printf("OK");
 
   return 0;
 }

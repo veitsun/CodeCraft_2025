@@ -21,7 +21,6 @@ public:
                int *unit);
   Object *getList(int obj_id) { return object_list[obj_id]; }
 
-  int getObjectId(int obj_id) { return getList(obj_id)->Object::getObjectId(); }
   int getObjectTag(int obj_id) {
     return getList(obj_id)->Object::getObjectTag();
   }

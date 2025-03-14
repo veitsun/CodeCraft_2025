@@ -19,12 +19,10 @@ int main() {
     队列的初始化工作由自己提供
   */
 
-  // del_request_list = request_receiver->delListInit();
-  // write_request_list = request_receiver->writeListInit();
-  // read_request_list = request_receiver->readListInit();
-
   // 调度器
   Scheduler scheduler;
+
+  objectList object_list;
 
   while (currentTime <= maxTime + 105) {
     // 同步时间戳

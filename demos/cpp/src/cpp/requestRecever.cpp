@@ -1,5 +1,5 @@
 #include "requestRecever.h"
-// #include "globalValue.h"
+#include "globalValue.h"
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
@@ -7,7 +7,6 @@
 delRequestList del_request_list;
 writeRequestList write_request_list;
 readRequestList read_request_list;
-
 // 调用指南：先调用三个队列的初始化，再调用时间戳函数，再调用Add函数把指令挂入队列，这样既完成一个时间戳内完整的请求接收操作
 
 int requestReceiver::timestamp_action() {
@@ -24,7 +23,8 @@ void requestReceiver::requestAdd() {
   int size = 0;
   int tag = 0;
   int request_id = 0;
-  // 先读删除，再读写入，最后读的是读取
+
+  // 删除请求
   scanf("%d", &request_num);
   if (request_num == -1)
     return;             // 没读到东西，后续再考虑这里
@@ -40,7 +40,8 @@ void requestReceiver::requestAdd() {
       del_request_list.setList(request_now);
     }
   }
-  // 写入
+
+  // 写入请求
   scanf("%d", &request_num);
   if (request_num == 0)
     ; // 不做任何操作
@@ -55,7 +56,8 @@ void requestReceiver::requestAdd() {
       write_request_list.setList(request_now);
     }
   }
-  // 读取
+
+  // 读取请求
   scanf("%d", &request_num);
   if (request_num == 0)
     ; // 不做任何操作
