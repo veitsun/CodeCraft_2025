@@ -1,14 +1,10 @@
 #pragma once
 
-class HandlerDelete {
+class handlerdelete {
 private:
   /* data */
 public:
-  HandlerDelete(/* args */) {};
-  ~HandlerDelete() {};
-  void delete1();
+  handlerdelete(/* args */) {};
+  ~handlerdelete() {};
+  void handlerDelete2Disk(int unitId, int objId, int size);
 };
-
-// HandlerDelete::HandlerDelete(/* args */) {}
-
-// HandlerDelete::~HandlerDelete() {}

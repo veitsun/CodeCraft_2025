@@ -8,3 +8,10 @@
 
 //   return diskList[0].
 // }
+
+Disk disk;
+
+// 直接发给Disk，告诉Disk从哪开始放，要放多少个
+void handlerwrite::handlerWrite2Disk(int unitStart, int objId, int objSize) {
+  disk.diskWrite(unitStart, objId, objSize);
+}
