@@ -7,10 +7,6 @@
 
 #include <cstdio>
 
-HandlerDelete delHandler;
-writeHeadler writeHandler;
-readHeadler readHandler;
-
 class Scheduler {
 private:
   /* data */

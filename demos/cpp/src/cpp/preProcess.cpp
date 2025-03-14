@@ -6,13 +6,21 @@
 
 using namespace std;
 
+int maxTime, maxTag, maxDisk, maxDiskSize, maxToken;
+
+vector<vector<vector<int>>> actionOnBlockCount;
+vector<int> maxSpaceForTag;
+// ! tagDistributeInAllDisk[1] 才是第一个磁盘
+vector<TagDistributeInDisk> tagDistributeInAllDisk;
+vector<tuple<int, int, int>> tagRepID;
+
 // --------------------public--------------------
 
 int PreProcess::run() {
   // 初始化全局变量
   scanf("%d%d%d%d%d", &maxTime, &maxTag, &maxDisk, &maxDiskSize, &maxToken);
   int maxBigTime = (maxTime - 1) / FRE_PER_SLICING;
-  
+
   // 读取预处理数据
   actionOnBlockCount.resize(ACITON_TYPE_COUNT);
   for (int action = 0; action < ACITON_TYPE_COUNT; action++) {
@@ -108,8 +116,8 @@ int PreProcess::run() {
     }
   }
 
-  for(int tag = 0; tag < maxTag; tag++){
-    if(!haveDistributeTag[tag]){
+  for (int tag = 0; tag < maxTag; tag++) {
+    if (!haveDistributeTag[tag]) {
       cout << "tag " << tag << "没有分配" << endl;
     }
   }

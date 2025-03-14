@@ -5,9 +5,11 @@
 #include <cstdlib>
 #include <vector>
 vector<Disk> diskList;
-readRequestList read_request_list;
-writeRequestList write_request_list;
-delRequestList del_request_list;
+
+HandlerDelete delHandler;
+writeHeadler writeHandler;
+readHeadler readHandler;
+
 void Scheduler::myScheduler() {
 
   Object obj;
@@ -24,7 +26,7 @@ void Scheduler::myScheduler() {
   if (writequest) {
     for (int i = 0; i < maxDisk; i++) {
       // 调用handlerwrite,没有写入的话,选手不需要有任何输出
-      diskList[i].wherecanput(obj.getTadId());
+      diskList[i].wherecanput(obj.getObjectTag());
     }
   }
 
