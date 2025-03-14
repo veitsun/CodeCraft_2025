@@ -1,24 +1,13 @@
-#include "../header/preProcess.h"
+#include "preProcess.h"
 
-#include "../header/globalDefines.h"
+#include "globalDefines.h"
 
 #include <iostream>
 
 using namespace std;
 
-// --------------------private--------------------
-
-// void PreProcess::AcceptGlobleParameter(void) {
-//   scanf("%d%d%d%d%d", &this->maxTime, &this->maxTag, &this->maxDisk,
-//         &this->maxDiskSize, &this->maxToken);
-// }
-
-// --------------------private--------------------
-
 // --------------------public--------------------
 
-// PreProcess::PreProcess() { AcceptGlobleParameter(); };
-int maxTime, maxTag, maxDisk, maxDiskSize, maxToken;
 int PreProcess::run() {
   scanf("%d%d%d%d%d", &maxTime, &maxTag, &maxDisk, &maxDiskSize, &maxToken);
   int maxBigTime = (maxTime - 1) / FRE_PER_SLICING;
@@ -87,8 +76,6 @@ int PreProcess::run() {
     }
   }
 
-  // TODO：逻辑还没有理顺，还可以优化代码
-  // 8个磁盘，3个备份，最后2个磁盘没有处理
   // 对于没有分配的tag，寻找不连续的磁盘存放
   // ! 不保证能分好
   int lastDiskID = maxDisk % REP_NUM;
@@ -117,8 +104,6 @@ int PreProcess::run() {
       }
     }
   }
-
-  // TODO: 需要发给磁盘这个分配信息
 
   return 0;
 }

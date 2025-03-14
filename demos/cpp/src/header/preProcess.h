@@ -32,6 +32,14 @@ enum action_type { DELETE, WRITE, READ };
       分配tag的备份磁盘
       分配tag的磁盘区域
 */
+int maxTime, maxTag, maxDisk, maxDiskSize, maxToken;
+
+vector<vector<vector<int>>> actionOnBlockCount;
+vector<int> maxSpaceForTag;
+// ! tagDistributeInAllDisk[1] 才是第一个磁盘
+vector<TagDistributeInDisk> tagDistributeInAllDisk;
+vector<tuple<int, int, int>> tagRepID;
+
 class PreProcess {
 private:
   /*
@@ -40,12 +48,6 @@ private:
       j： 代表标签类型
       k： 代表大时间片
   */
-  vector<vector<vector<int>>> actionOnBlockCount;
-  vector<int> maxSpaceForTag;
-  // ! tagDistributeInAllDisk[1] 才是第一个磁盘
-  vector<TagDistributeInDisk> tagDistributeInAllDisk;
-  vector<tuple<int, int, int>> tagRepID;
-
 public:
   PreProcess() {};
   ~PreProcess() {};
