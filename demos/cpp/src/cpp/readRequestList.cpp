@@ -8,11 +8,12 @@ bool readRequestList::listIsEmpty(){
     return read_request_list.empty();
 }
 
-readRequest* readRequestList::getList(){
-    if (readRequestList::listIsEmpty())
-        return nullptr;
-    //弹出队头
-    readRequest *request = read_request_list.front();
-    read_request_list.pop_front();
+vector<readRequest*> readRequestList::getList(){
+    std::vector<readRequest*> request;
+    while(!readRequestList::listIsEmpty()){
+        // 弹出队头dd
+        request.push_back(read_request_list.front());
+        read_request_list.pop_front();
+    }
     return request;
 }
