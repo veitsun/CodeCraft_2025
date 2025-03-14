@@ -7,33 +7,47 @@
 using namespace std;
 
 int maxTime, maxTag, maxDisk, maxDiskSize, maxToken;
-
+/*
+  action_on_block_count[i][j][k]
+    i： 代表操作类型 delete、write、read
+    j： 代表标签类型
+    k： 代表大时间片
+*/
 vector<vector<vector<int>>> actionOnBlockCount;
+
 vector<int> maxSpaceForTag;
 // ! tagDistributeInAllDisk[1] 才是第一个磁盘
 vector<TagDistributeInDisk> tagDistributeInAllDisk;
+// tagRepID[0] = <1, 2, 3> 代表 tag0 在 1, 2, 3 磁盘上的备份
+// tagRepID[1] = <5, 6, 7> 代表 tag1 在 5, 6, 7 磁盘上的备份
 vector<tuple<int, int, int>> tagRepID;
 
 // --------------------public--------------------
 
 int PreProcess::run() {
-  // 初始化全局变量
   scanf("%d%d%d%d%d", &maxTime, &maxTag, &maxDisk, &maxDiskSize, &maxToken);
+  // 初始化全局变量
   int maxBigTime = (maxTime - 1) / FRE_PER_SLICING;
+  tagDistributeInAllDisk.resize(maxDisk + 1);
+  actionOnBlockCount.resize(ACITON_TYPE_COUNT);
+  maxSpaceForTag.resize(maxTag);
+  tagRepID.resize(maxTag);
 
   // 读取预处理数据
-  actionOnBlockCount.resize(ACITON_TYPE_COUNT);
   for (int action = 0; action < ACITON_TYPE_COUNT; action++) {
     actionOnBlockCount[action].resize(maxTag);
     for (int tag = 0; tag < maxTag; tag++) {
+      actionOnBlockCount[action][tag].resize(maxBigTime + 1);
       for (int bigTime = 0; bigTime <= maxBigTime; bigTime++) {
-        scanf("%*d", actionOnBlockCount[action][tag][bigTime]);
+        scanf("%d", &actionOnBlockCount[action][tag][bigTime]);
       }
     }
   }
 
   // 计算每种tag最大需要的空间
   vector<int> rawMaxSpaceForTag;
+  rawMaxSpaceForTag.resize(maxTag);
+
   int maxSpaceForAllTag = 0;
   for (int tag = 0; tag < maxTag; tag++) {
     rawMaxSpaceForTag[tag] = actionOnBlockCount[WRITE][tag][0];
@@ -52,10 +66,12 @@ int PreProcess::run() {
 
   // diskUsedSpace 记录磁盘已分配空间
   vector<int> diskUsedSpace;
+  diskUsedSpace.resize(maxDisk + 1);
   for (int diskId = 1; diskId <= maxDisk; diskId++) {
     diskUsedSpace[diskId] = 0;
   }
   vector<bool> haveDistributeTag;
+  haveDistributeTag.resize(maxTag);
   // 指定tag的磁盘空间
   for (int tag = 0; tag < maxTag; tag++) {
     // 寻找合适的一组磁盘

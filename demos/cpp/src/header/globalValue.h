@@ -24,7 +24,12 @@ typedef tuple<int, int, int> TagDistribute;
   <2, 200, 300>
 */
 typedef vector<tuple<int, int, int>> TagDistributeInDisk;
-
+/*
+  action_on_block_count[i][j][k]
+    i： 代表操作类型 delete、write、read
+    j： 代表标签类型
+    k： 代表大时间片
+*/
 extern vector<vector<vector<int>>> actionOnBlockCount;
 extern vector<int> maxSpaceForTag;
 // ! tagDistributeInAllDisk[1] 才是第一个磁盘
