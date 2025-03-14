@@ -34,4 +34,4 @@ extern vector<vector<vector<int>>> actionOnBlockCount;
 extern vector<int> maxSpaceForTag;
 // ! tagDistributeInAllDisk[1] 才是第一个磁盘
 extern vector<TagDistributeInDisk> tagDistributeInAllDisk;
-extern vector<tuple<int, int, int>> tagRepID;
+extern vector<vector<int, int>> tagRepID;
