@@ -9,11 +9,14 @@ using namespace std;
 // --------------------public--------------------
 
 int PreProcess::run() {
+  // 初始化全局变量
   scanf("%d%d%d%d%d", &maxTime, &maxTag, &maxDisk, &maxDiskSize, &maxToken);
   int maxBigTime = (maxTime - 1) / FRE_PER_SLICING;
-
+  
   // 读取预处理数据
+  actionOnBlockCount.resize(ACITON_TYPE_COUNT);
   for (int action = 0; action < ACITON_TYPE_COUNT; action++) {
+    actionOnBlockCount[action].resize(maxTag);
     for (int tag = 0; tag < maxTag; tag++) {
       for (int bigTime = 0; bigTime <= maxBigTime; bigTime++) {
         scanf("%*d", actionOnBlockCount[action][tag][bigTime]);
@@ -102,6 +105,12 @@ int PreProcess::run() {
           haveDistributeTag[tag] = true;
         }
       }
+    }
+  }
+
+  for(int tag = 0; tag < maxTag; tag++){
+    if(!haveDistributeTag[tag]){
+      cout << "tag " << tag << "没有分配" << endl;
     }
   }
 
