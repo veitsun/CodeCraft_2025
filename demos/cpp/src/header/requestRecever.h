@@ -20,17 +20,9 @@ private:
 
 public:
   requestReceiver() : time_stamp(0), request_num(-1) {}
-<<<<<<< Updated upstream
-  // delRequestList *delListInit();
-  // writeRequestList *writeListInit();
-  // readRequestList *readListInit();
-  void timestamp_action();
-  void requestAdd();
-=======
   delRequestList* delListInit();
   writeRequestList* writeListInit();
   readRequestList* readListInit();
   int timestamp_action();
   void requestAdd(delRequestList* del_request_list, writeRequestList* write_request_list, readRequestList* read_request_list);
->>>>>>> Stashed changes
 };
