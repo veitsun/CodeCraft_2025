@@ -25,6 +25,10 @@ typedef vector<tuple<int, int, int>> TagDistributeInDisk;
 
 class PreProcess {
 private:
+  void acceptInput();
+  void calculateTagSpace();
+  void allockDiskGroupSpaceForTag(vector<int> diskUsedSpace, vector<bool> haveDistributeTag);
+  void allockDiskSpaceForTag(vector<int> diskUsedSpace, vector<bool> haveDistributeTag);
 public:
   PreProcess() {};
   ~PreProcess() {};
