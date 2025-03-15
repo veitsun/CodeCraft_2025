@@ -72,7 +72,6 @@ public:
   int getObjectId() { return obj_id; }
   void setTime(int time) { request_time_stamp = time; }
   int getTime() { return request_time_stamp; }
-  void freeDelRequest(delRequest *request) { delete (request); }
 };
 
 class writeRequest : public Request {
@@ -91,7 +90,6 @@ public:
   void setObjectTag(int tag) { obj_tag = tag; }
   int getObjectTag() { return obj_tag; }
   void setTime(int time) { request_time_stamp = time; }
-  void freeWriteRequest(writeRequest *request) { delete (request); }
 };
 
 class readRequest : public Request {
@@ -109,6 +107,5 @@ private:
     int getObjectId(){ return obj_id; }
     void setTime(int Time) { request_time_stamp = Time; }
     int getTime(){ return request_time_stamp; }
-    void freeReadRequest(readRequest* request){delete(request);}
 
 };
