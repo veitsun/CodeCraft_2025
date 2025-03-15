@@ -66,7 +66,7 @@ void calculateTagSpace(){
   return;
 }
 
-void allockDiskGroupSpaceForTag(vector<int> diskUsedSpace, vector<bool> haveDistributeTag){
+void allockDiskGroupSpaceForTag(vector<int>& diskUsedSpace, vector<bool>& haveDistributeTag){
   for (int tag = 0; tag < maxTag; tag++) {
     // 寻找合适的一组连续的磁盘
     for (int currentDiskGroup = 1; currentDiskGroup * REP_NUM <= maxDisk;
@@ -96,7 +96,7 @@ void allockDiskGroupSpaceForTag(vector<int> diskUsedSpace, vector<bool> haveDist
   }
 }
 
-void allockDiskSpaceForTag(vector<int> diskUsedSpace, vector<bool> haveDistributeTag){
+void allockDiskSpaceForTag(vector<int>& diskUsedSpace, vector<bool>& haveDistributeTag){
   // 一个tag存放的磁盘编号
   vector<int> allRepDiskID;
   for (int tag = 0; tag < maxTag; tag++) {
