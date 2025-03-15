@@ -15,6 +15,7 @@ public:
   int tag_id;
   bool is_used;
   // virtual void clear() = 0;
+  DiskUnit() { tag_id = 0; }
 };
 
 // class DiskUnitImplement1 : public DiskUnit {

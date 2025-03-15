@@ -3,13 +3,14 @@
 #include <cassert>
 #include <cstdio>
 #include <cstdlib>
-
+// objectList object_list;
 delRequestList del_request_list;
 writeRequestList write_request_list;
 readRequestList read_request_list;
 // 调用指南：先调用三个队列的初始化，再调用时间戳函数，再调用Add函数把指令挂入队列，这样既完成一个时间戳内完整的请求接收操作
 
 int requestReceiver::timestamp_action() {
+  // fflush(stdout);
   scanf("%*s%d", &time_stamp);
   printf("TIMESTAMP %d\n", time_stamp);
 
@@ -26,9 +27,10 @@ void requestReceiver::requestAdd() {
 
   // 删除请求
   scanf("%d", &request_num);
-  if (request_num == 0) // 没有删除操作，注意需要输出一个0
+  if (request_num == 0) { // 没有删除操作，注意需要输出一个0
     printf("0\n");
-  else {
+    fflush(stdout);
+  } else {
     // 逐行读取指令并添加入队列
     for (; request_num > 0; request_num--) {
       scanf("%d", &id);

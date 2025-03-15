@@ -1,3 +1,4 @@
+#pragma once
 #include "delRequestList.h"
 #include "disk.h"
 #include "objectList.h"

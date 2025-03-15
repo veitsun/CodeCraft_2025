@@ -1,17 +1,86 @@
 #include "handlerWrite.h"
 #include "disk.h"
+#include "globalValue.h"
+#include "object.h"
+#include <cstdio>
 #include <utility>
 #include <vector>
 
-// std::vector<vector<std::pair<int, int>>> writeHeadler::writeHeadler() {
-//   vector<Disk> diskList;
-
-//   return diskList[0].
-// }
+handlerwrite handlerwrite;
 
 Disk disk;
+vector<Disk> diskList;
 
-// 直接发给Disk，告诉Disk从哪开始放，要放多少个
+// 直接发给Disk，告诉Disk从哪开始放，要放多少个,V1没用到
 void handlerwrite::handlerWrite2Disk(int unitStart, int objId, int objSize) {
   disk.diskWrite(unitStart, objId, objSize);
+}
+
+/*
+---------------------------BUG todo---------------------------
+********若选手无法选出三块有足够空间的硬盘存放该对象则选手程序直接判********
+该对象第二个副本存在最后一个磁盘，则最后一个副本放不下
+---------------------------BUG todo---------------------------
+ */
+bool handlerwrite::handlerRequsetfromScheduler(writeRequest writeRequest) {
+  bool isDone = false;
+  int diskUnique = 1; // 控制每个rep写到不同磁盘
+  vector<pair<int, int>> section;
+  vector<int> diskNum;
+  vector<int> unit;
+  diskNum.resize(REP_NUM);
+  unit.resize(REP_NUM);
+  int flag = 0;
+
+  // 这里做副本都写
+  for (int rep{0}; rep < REP_NUM; rep++) {
+    flag = 0;
+    for (int i{diskUnique}; i < maxDisk / 3; i++) {
+      if (flag >= 1)
+        break;
+      section = diskList[i].wherecanput(writeRequest.getObjectTag());
+      // 假设返回的section存在可以放的
+      for (int j{0}; j < section.size(); j++) {
+        if ((section[j].second - section[j].first) <=
+            writeRequest.getObjectSize()) {
+          // 这里的判断是如果能放下的话就调用handler来放，但是现在V1，感觉这里可以直接调用disk
+          disk.diskWrite(section[j].first, writeRequest.getObjectId(),
+                         writeRequest.getObjectSize());
+          diskNum[rep] = i;
+          unit[rep] = section[j].first;
+          flag++;
+          diskUnique++;
+          isDone = true;
+          completeObjId = writeRequest.getObjectId();
+          completeRep.push_back(i);
+          for (int unitId{section[j].first}; i < writeRequest.getObjectSize();
+               unitId++) {
+            completeUnitId[rep].push_back(unitId);
+          }
+          break;
+        }
+      }
+    }
+  }
+
+  Object obj = object_list.getObject(writeRequest.getObjectId());
+  obj.setObjectId(writeRequest.getObjectId());
+  obj.setObjectSize(writeRequest.getObjectSize());
+  obj.setObjectTag(writeRequest.getObjectTag());
+  obj.setObjectDisk(diskNum);
+  obj.setObjectUnit(unit);
+  object_list.addObject(obj);
+
+  return isDone;
+}
+
+void handlerwrite::printCompleteRequest() {
+  printf("%d\n", completeObjId);
+  for (int i{0}; i < REP_NUM; i++) {
+    printf("%d", completeRep[i]);
+    for (int j{0}; j < completeUnitId[i].size(); j++) {
+      printf(" %d", completeUnitId[i][j]);
+    }
+    printf("\n");
+  }
 }
