@@ -16,7 +16,7 @@ private:
 
 public:
   writeRequestList(){};
-  void setList(writeRequest request);
-  vector<writeRequest> getList();
+  void addWriteRequest(writeRequest request);
+  vector<writeRequest> getrWriteRequest();
   bool listIsEmpty();
 };

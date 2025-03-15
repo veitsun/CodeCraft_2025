@@ -102,7 +102,7 @@ private:
   public:
     readRequest() : request_id(0), obj_id(0), request_time_stamp(0), is_done(false) {}
     void setRequestId(int id) { request_id = id; }
-    int readRequestId(){ return request_id; }
+    int getRequestId(){ return request_id; }
     void setObjectId(int id) { obj_id = id; }
     int getObjectId(){ return obj_id; }
     void setTime(int Time) { request_time_stamp = Time; }

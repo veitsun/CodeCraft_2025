@@ -1,6 +1,6 @@
 #include "readRequestList.h"
 
-void readRequestList::setList(readRequest request){
+void readRequestList::addReadRequest(readRequest request){
     read_request_list.push_back(request);//放在队尾
 }
 
@@ -8,7 +8,7 @@ bool readRequestList::listIsEmpty(){
     return read_request_list.empty();
 }
 
-vector<readRequest> readRequestList::getList(){
+vector<readRequest> readRequestList::getReadRequest(){
     std::vector<readRequest> request;
     while(!readRequestList::listIsEmpty()){
         // 弹出队头dd

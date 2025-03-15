@@ -16,7 +16,7 @@ private:
 
 public:
   delRequestList(){};
-  void setList(delRequest request);
-  vector<delRequest> getList();
+  void addDelRequest(delRequest request);
+  vector<delRequest> getdelRequest();
   bool listIsEmpty();
 };

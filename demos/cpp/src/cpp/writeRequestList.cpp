@@ -1,12 +1,12 @@
 #include "writeRequestList.h"
 
-void writeRequestList::setList(writeRequest request) {
+void writeRequestList::addWriteRequest(writeRequest request) {
   write_request_list.push_back(request); // 放在队尾
 }
 
 bool writeRequestList::listIsEmpty() { return write_request_list.empty(); }
 
-vector<writeRequest> writeRequestList::getList() {
+vector<writeRequest> writeRequestList::getrWriteRequest() {
   std::vector<writeRequest> request;
   while(!writeRequestList::listIsEmpty()){
     // 弹出队头dd

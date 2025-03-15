@@ -18,7 +18,7 @@ private:
 
 public:
   readRequestList() {};
-  void setList(readRequest request);
-  vector<readRequest> getList();
+  void addReadRequest(readRequest request);
+  vector<readRequest> getReadRequest();
   bool listIsEmpty();
 };

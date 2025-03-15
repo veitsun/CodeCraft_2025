@@ -35,7 +35,7 @@ void requestReceiver::requestAdd() {
       unique_ptr<delRequest> request_now = make_unique<delRequest>();
       request_now->setObjectId(id);
       request_now->setTime(time_stamp);
-      del_request_list.setList(*request_now);
+      del_request_list.addDelRequest(*request_now);
     }
   }
 
@@ -51,7 +51,7 @@ void requestReceiver::requestAdd() {
       request_now->setObjectSize(size);
       request_now->setObjectTag(tag);
       request_now->setTime(time_stamp);
-      write_request_list.setList(*request_now);
+      write_request_list.addWriteRequest(*request_now);
     }
   }
 
@@ -66,7 +66,7 @@ void requestReceiver::requestAdd() {
       request_now->setRequestId(request_id);
       request_now->setObjectId(id);
       request_now->setTime(time_stamp);
-      read_request_list.setList(*request_now);
+      read_request_list.addReadRequest(*request_now);
     }
   }
   // 读取完毕

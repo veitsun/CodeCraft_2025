@@ -1,6 +1,6 @@
 #include "delRequestList.h"
 
-void delRequestList::setList(delRequest request){
+void delRequestList::addDelRequest(delRequest request){
     del_request_list.push_back(request);//放在队尾
 }
 
@@ -8,7 +8,7 @@ bool delRequestList::listIsEmpty(){
     return del_request_list.empty();
 }
 
-std::vector<delRequest> delRequestList::getList(){
+std::vector<delRequest> delRequestList::getdelRequest(){
     vector<delRequest> request;
     while(!delRequestList::listIsEmpty()){
         //弹出队头
