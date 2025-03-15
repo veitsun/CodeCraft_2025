@@ -2,3 +2,8 @@
 .vscode/
 build/
 demos/cpp/src/main
+data/
+interactor
+code_craft
+debug.txt
+result.txt

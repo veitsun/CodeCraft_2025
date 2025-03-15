@@ -1,13 +1,13 @@
 #include "delRequestList.h"
 #include "disk.h"
-#include "object.h"
+#include "objectList.h"
 #include "readRequestList.h"
 #include "writeRequestList.h"
 
 // 公开的信息
 extern vector<Disk> diskList;
 
-extern vector<Object> objectList;
+extern objectList object_list;
 extern readRequestList read_request_list;
 extern writeRequestList write_request_list;
 extern delRequestList del_request_list;
@@ -24,9 +24,15 @@ typedef tuple<int, int, int> TagDistribute;
   <2, 200, 300>
 */
 typedef vector<tuple<int, int, int>> TagDistributeInDisk;
-
+/*
+  action_on_block_count[i][j][k]
+    i： 代表操作类型 delete、write、read
+    j： 代表标签类型
+    k： 代表大时间片
+*/
 extern vector<vector<vector<int>>> actionOnBlockCount;
 extern vector<int> maxSpaceForTag;
 // ! tagDistributeInAllDisk[1] 才是第一个磁盘
 extern vector<TagDistributeInDisk> tagDistributeInAllDisk;
 extern vector<tuple<int, int, int>> tagRepID;
+extern int currentTime;

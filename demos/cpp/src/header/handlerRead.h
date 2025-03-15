@@ -1,9 +1,10 @@
 #pragma once
 
-class readHeadler {
+class handlerread {
 private:
   /* data */
 public:
-  readHeadler(/* args */) {};
-  ~readHeadler() {};
+  handlerread(/* args */) {};
+  ~handlerread() {};
+  void handlerRead2Disk(int action, int unitId);
 };
