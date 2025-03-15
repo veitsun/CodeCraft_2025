@@ -26,18 +26,16 @@ void requestReceiver::requestAdd() {
 
   // 删除请求
   scanf("%d", &request_num);
-  if (request_num == -1)
-    return;             // 没读到东西，后续再考虑这里
   if (request_num == 0) // 没有删除操作，注意需要输出一个0
     printf("0\n");
   else {
     // 逐行读取指令并添加入队列
     for (; request_num > 0; request_num--) {
       scanf("%d", &id);
-      delRequest *request_now = new delRequest();
+      unique_ptr<delRequest> request_now = make_unique<delRequest>();
       request_now->setObjectId(id);
       request_now->setTime(time_stamp);
-      del_request_list.setList(request_now);
+      del_request_list.setList(*request_now);
     }
   }
 
@@ -48,12 +46,12 @@ void requestReceiver::requestAdd() {
   else {
     for (; request_num > 0; request_num--) {
       scanf("%d%d%d", &id, &size, &tag);
-      writeRequest *request_now = new writeRequest();
+      unique_ptr<writeRequest> request_now = make_unique<writeRequest>();
       request_now->setObjectId(id);
       request_now->setObjectSize(size);
       request_now->setObjectTag(tag);
       request_now->setTime(time_stamp);
-      write_request_list.setList(request_now);
+      write_request_list.setList(*request_now);
     }
   }
 
@@ -64,11 +62,11 @@ void requestReceiver::requestAdd() {
   else {
     for (; request_num > 0; request_num--) {
       scanf("%d%d", &request_id, &id);
-      readRequest *request_now = new readRequest();
+      unique_ptr<readRequest> request_now = make_unique<readRequest>();
       request_now->setRequestId(request_id);
       request_now->setObjectId(id);
       request_now->setTime(time_stamp);
-      read_request_list.setList(request_now);
+      read_request_list.setList(*request_now);
     }
   }
   // 读取完毕

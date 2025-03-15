@@ -1,5 +1,7 @@
 #include "disk.h"
 #include "diskUnit.h"
+#include "globalValue.h"
+#include <cstdlib>
 
 using namespace std;
 
@@ -108,4 +110,73 @@ pair<int, int> Disk::getDiskHead() {
   temp.first = pointer.current_position;
   temp.second = pointer.token;
   return temp;
+}
+
+// int remainTokens() // 当前磁头剩
+int Disk::remainTokens() { return pointer.token; }
+
+bool Disk::diskRead(int unit_id) {
+  int current_pinter_pos = pointer.current_position;
+  int current_token = pointer.token;
+  // if ()
+  // current_token = pointer.token
+  bool keyi_jump = false;
+  bool keyi_pass = false;
+  if (current_token == maxToken) {
+    keyi_jump = true;
+  } else {
+    keyi_jump = false;
+  }
+  // if()
+  int pass_need_token = abs(current_pinter_pos - unit_id);
+  if (current_token >= pass_need_token) {
+    // pointer.token -= pass_need_token;
+    // pointer.current_position = unit_id;
+    // return true;
+    keyi_pass = true;
+  } else {
+    keyi_pass = false;
+  }
+  if (keyi_pass || keyi_jump) {
+    return true;
+  }
+}
+
+int Disk::howManyTokensCost(int objUnit, int objSize) {
+  int current_pinter_pos = pointer.current_position;
+  int current_token = pointer.token;
+  // int pass_need_token = abs(current_pinter_pos - objUnit);
+  // if (current_token >= pass_need_token) {
+  //   return pass_need_token;
+  // } else {
+  //   return -1;
+  // }
+  bool keyi_jump = false;
+  bool keyi_pass = false;
+  if (current_token == maxToken) {
+    keyi_jump = true;
+  } else {
+    keyi_jump = false;
+  }
+  // if()
+  int pass_need_token = abs(current_pinter_pos - objUnit);
+  if (current_token >= pass_need_token) {
+    // pointer.token -= pass_need_token;
+    // pointer.current_position = unit_id;
+    // return true;
+    // pass_need_token =
+    keyi_pass = true;
+  } else {
+    keyi_pass = false;
+  }
+  if (keyi_pass || keyi_jump) {
+    // return true;
+    if (keyi_jump == true && keyi_pass == false) {
+      return pass_need_token;
+    } else if (keyi_pass) {
+      return pass_need_token;
+    } else {
+      return maxToken;
+    }
+  }
 }

@@ -66,6 +66,12 @@ public:
 
   pair<int, int> getDiskHead();
   // int get
+  // bool diskRead(int unit_id);
+
+  int remainTokens(); // 当前磁头剩余token数
+
+  bool diskRead(int objUnit);                      // 读单个对象块
+  int howManyTokensCost(int objUnit, int objSize); // 预消耗token数
 };
 
 class NewDisk : public Disk {

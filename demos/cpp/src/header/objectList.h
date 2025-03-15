@@ -12,28 +12,10 @@ using namespace std;
 class objectList {
   // 用于对应上object对象实体的索引表
 private:
-  vector<Object *> object_list;
+  vector<Object> object_list;
 
 public:
   objectList() { object_list.reserve(1000); }
-  int listSize() { return object_list.size(); }
-  void setList(int object_id, int tag_id, int object_size, int *disk_num,
-               int *unit);
-  Object *getList(int obj_id) { return object_list[obj_id]; }
-
-  int getObjectTag(int obj_id) {
-    return getList(obj_id)->Object::getObjectTag();
-  }
-  int getObjectSize(int obj_id) {
-    return getList(obj_id)->Object::getObjectSize();
-  }
-  int *getObjectDisk(int obj_id) {
-    return getList(obj_id)->Object::getObjectDisk();
-  }
-  int *getObjectUnit(int obj_id) {
-    return getList(obj_id)->Object::getObjectUnit();
-  }
-
-  void deleteObject(int obj_id);
-  void clean() {}
+  void addObject(Object object);
+  Object getObject(int obj_id) {return object_list[obj_id];}
 };

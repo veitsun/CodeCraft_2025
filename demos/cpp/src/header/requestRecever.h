@@ -6,6 +6,7 @@
 #include "request.h"
 #include "writeRequestList.h"
 #include <vector>
+#include <memory>
 
 using namespace std;
 

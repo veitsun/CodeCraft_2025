@@ -72,7 +72,6 @@ public:
   int getObjectId() { return obj_id; }
   void setTime(int time) { request_time_stamp = time; }
   int getTime() { return request_time_stamp; }
-  void freeDelRequest(delRequest *request) { delete (request); }
 };
 
 class writeRequest : public Request {
@@ -91,7 +90,6 @@ public:
   void setObjectTag(int tag) { obj_tag = tag; }
   int getObjectTag() { return obj_tag; }
   void setTime(int time) { request_time_stamp = time; }
-  void freeWriteRequest(writeRequest *request) { delete (request); }
 };
 
 class readRequest : public Request {
@@ -101,14 +99,13 @@ private:
   int request_time_stamp;
   bool is_done;
 
-public:
-  readRequest()
-      : request_id(0), obj_id(0), request_time_stamp(0), is_done(false) {}
-  void setRequestId(int id) { request_id = id; }
-  int readRequestId() { return request_id; }
-  void setObjectId(int id) { obj_id = id; }
-  int getObjectId() { return obj_id; }
-  void setTime(int Time) { request_time_stamp = Time; }
-  int getTime() { return request_time_stamp; }
-  void freeReadRequest(readRequest *request) { delete (request); }
+  public:
+    readRequest() : request_id(0), obj_id(0), request_time_stamp(0), is_done(false) {}
+    void setRequestId(int id) { request_id = id; }
+    int readRequestId(){ return request_id; }
+    void setObjectId(int id) { obj_id = id; }
+    int getObjectId(){ return obj_id; }
+    void setTime(int Time) { request_time_stamp = Time; }
+    int getTime(){ return request_time_stamp; }
+
 };
