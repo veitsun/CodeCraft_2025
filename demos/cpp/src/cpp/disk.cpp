@@ -30,7 +30,7 @@ void Disk::setTagDistribute() {
       storage[flag + (tagId - 1) * onetagLenth].tag_id = tagId;
     }
   }
-  for (; last_flag <= maxDiskSize; last_flag) {
+  for (; last_flag <= maxDiskSize; last_flag++) {
     storage[last_flag].tag_id = maxTag;
   }
 }
