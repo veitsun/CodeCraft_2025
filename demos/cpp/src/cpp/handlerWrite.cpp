@@ -41,7 +41,7 @@ bool handlerwrite::handlerRequestfromScheduler(writeRequest writeRequest) {
           // 这里的判断是如果能放下的话就调用handler来放，但是现在V1，感觉这里可以直接调用disk
           diskList[i].diskWrite(section[j].first, writeRequest.getObjectId(),
                                 writeRequest.getObjectSize());
-          diskNum[rep] = i;
+          diskNum[rep] = i + 1;
           unit[rep] = section[j].first;
           flag++;
           diskUnique++;
