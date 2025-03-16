@@ -9,4 +9,5 @@ public:
   ~handlerdelete() {};
   void handlerDelete2Disk(int unitId, int size);
   bool handlerRequestfromScheduler(delRequest delRequest);
+  void printCompleteRequest();
 };

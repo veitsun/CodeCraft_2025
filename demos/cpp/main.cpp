@@ -24,7 +24,11 @@ int main() {
     // 接收请求
     request_receiver.requestAdd(); // 接收器可以通过全局变量操作请求队列
     // 处理请求
-    scheduler.myScheduler(); // 一个循环跑一次
+    // scheduler.myScheduler(); // 一个循环跑一次
+    // 分开处理请求
+    scheduler.myDeleteScheduler();
+    scheduler.myWriteScheduler();
+    scheduler.myReadScheduler();
   }
 
   return 0;

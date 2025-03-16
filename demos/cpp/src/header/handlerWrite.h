@@ -13,7 +13,7 @@ private:
 public:
   handlerwrite(/* args */) {};
   ~handlerwrite() {};
-  bool handlerRequsetfromScheduler(writeRequest writeRequest);
+  bool handlerRequestfromScheduler(writeRequest writeRequest);
   void handlerWrite2Disk(int unitStart, int objId, int objSize);
   void printCompleteRequest();
 };

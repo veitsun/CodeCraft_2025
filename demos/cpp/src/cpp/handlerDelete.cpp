@@ -23,3 +23,5 @@ bool handlerdelete::handlerRequestfromScheduler(delRequest delRequest) {
 
   return isDone;
 }
+
+void handlerdelete::printCompleteRequest() {}

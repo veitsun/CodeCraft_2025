@@ -22,7 +22,7 @@ void handlerwrite::handlerWrite2Disk(int unitStart, int objId, int objSize) {
 该对象第二个副本存在最后一个磁盘，则最后一个副本放不下
 ---------------------------BUG todo---------------------------
  */
-bool handlerwrite::handlerRequsetfromScheduler(writeRequest writeRequest) {
+bool handlerwrite::handlerRequestfromScheduler(writeRequest writeRequest) {
   bool isDone = false;
   int diskUnique = 1; // 控制每个rep写到不同磁盘
   vector<pair<int, int>> section;

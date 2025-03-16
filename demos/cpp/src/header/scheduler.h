@@ -15,5 +15,9 @@ public:
   ~Scheduler() {};
   void myScheduler();
 
+  void myDeleteScheduler();
+  void myWriteScheduler();
+  void myReadScheduler();
+
   //...
 };
