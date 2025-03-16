@@ -10,18 +10,16 @@
 
 #include "diskPointer.h"
 #include "diskUnit.h"
-// #include "globalDefines.h"
-
 #include <cstdio>
 #include <vector>
 
-#define MAX_DISK_NUM (10 + 1)
-#define MAX_DISK_SIZE (16384 + 1)
-#define MAX_REQUEST_NUM (30000000 + 1)
-#define MAX_OBJECT_NUM (100000 + 1)
-#define REP_NUM (3)
-#define FRE_PER_SLICING (1800)
-#define EXTRA_TIME (105)
+// #define MAX_DISK_NUM (10 + 1)
+// #define MAX_DISK_SIZE (16384 + 1)
+// #define MAX_REQUEST_NUM (30000000 + 1)
+// #define MAX_OBJECT_NUM (100000 + 1)
+// #define REP_NUM (3)
+// #define FRE_PER_SLICING (1800)
+// #define EXTRA_TIME (105)
 using namespace std;
 
 class Disk {
@@ -30,12 +28,13 @@ private:
   std::vector<DiskUnit> storage; // storage 的大小是V
   DiskPointer pointer;
   // vector<pair<int, int>> res;
-  void reset();
+  void reset(); // 这个暂且没有用
   int max(int a, int b) { return a > b ? a : b; }
   int min(int a, int b) { return a < b ? a : b; }
+  void setTagDistribute();
 
 public:
-  Disk() { storage.resize(MAX_DISK_SIZE); } // 这个之后改成 V 大小
+  Disk(); // 这个之后改成 V 大小
   ~Disk() {}
 
   // 最新版本是我不需要提供磁盘块号，我只是单个磁盘的抽象
@@ -56,7 +55,6 @@ public:
 
   void executeAction(int action, int unit_id, int obj_id, int obj_blockid);
 
-  // void readValue(int unit_id); // 读功能
   void writeValueByTag(int unit_id, int obj_id, int obj_blockid, int tag_id);
 
   vector<pair<int, int>>
@@ -69,8 +67,6 @@ public:
   vector<tuple<int, int, int>> getTagInterval(int tag) const;
 
   pair<int, int> getDiskHead();
-  // int get
-  // bool diskRead(int unit_id);
 
   int remainTokens();                             // 当前磁头剩余token数
   int howManyTokensCost(int objUnit, bool &path); // 预消耗token数
@@ -90,7 +86,7 @@ private:
   DiskPointer pointer;
 
 public:
-  NewDisk() { storage.resize(MAX_DISK_SIZE); } // 这个之后改成 V 大小
+  NewDisk(); // 这个之后改成 V 大小
   ~NewDisk() {}
 
   vector<pair<int, int>>

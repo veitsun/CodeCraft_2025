@@ -9,7 +9,31 @@
 
 using namespace std;
 
+Disk::Disk() {
+  storage.resize(maxDiskSize);
+  setTagDistribute();
+}
+
 void Disk::reset() { storage.clear(); }
+
+void Disk::setTagDistribute() {
+  // 根据 maxTag 划分磁盘 tag 分区
+  int onetagLenth = maxDiskSize / maxTag;
+  // int flag = 1;
+  // for(;flag <= maxDiskSize; flag ++){
+  //   storage[flag].tag_id =
+  // }
+  int last_flag = onetagLenth * maxTag + 1;
+  for (int tagId = 1; tagId <= maxTag; tagId++) {
+    int flag = 1;
+    for (; flag <= onetagLenth; flag++) {
+      storage[flag + (tagId - 1) * onetagLenth].tag_id = tagId;
+    }
+  }
+  for (; last_flag <= maxDiskSize; last_flag) {
+    storage[last_flag].tag_id = maxTag;
+  }
+}
 
 DiskUnit Disk::getStorageUnit(int Unitindex) const {
   return storage[Unitindex];
@@ -64,10 +88,10 @@ vector<pair<int, int>>
 Disk::getStorageUnitIntervalByTag(int tag_id) const // 返回所有这个tag的区间
 {
   vector<pair<int, int>> res;
-  for (int i = 0; i < MAX_DISK_SIZE; i++) { // MAX_DISK_SIZE 这个之后应该是 V
+  for (int i = 0; i < maxDiskSize; i++) { // MAX_DISK_SIZE 这个之后应该是 V
     if (storage[i].tag_id == tag_id) {
       int start = i;
-      while (i < MAX_DISK_SIZE && storage[i].tag_id == tag_id) {
+      while (i < maxDiskSize && storage[i].tag_id == tag_id) {
         i++;
       }
       res.push_back(make_pair(start, i - 1));
@@ -80,10 +104,10 @@ vector<pair<int, int>>
 NewDisk::getStorageUnitIntervalByTag(int tag_id) const // 返回所有这个tag的区间
 {
   vector<pair<int, int>> res;
-  for (int i = 0; i < MAX_DISK_SIZE; i++) { // MAX_DISK_SIZE 这个之后应该是 V
+  for (int i = 0; i < maxDiskSize; i++) { // MAX_DISK_SIZE 这个之后应该是 V
     if (storage[i].tag_id == tag_id) {
       int start = i;
-      while (i < MAX_DISK_SIZE && storage[i].tag_id == tag_id) {
+      while (i < maxDiskSize && storage[i].tag_id == tag_id) {
         i++;
       }
       res.push_back(make_pair(start, i - 1));
@@ -97,9 +121,9 @@ vector<pair<int, int>> Disk::wherecanput(
 {
   vector<pair<int, int>> res;
   for (int i = 0; i < maxDiskSize; i++) { // MAX_DISK_SIZE 这个之后应该是 V
-    if (/**storage[i].tag_id == tag_id &&**/ storage[i].is_used == false) {
+    if (storage[i].tag_id == tag_id && storage[i].is_used == false) {
       int start = i;
-      while (i < maxDiskSize /**&& storage[i].tag_id == tag_id **/ &&
+      while (i < maxDiskSize && storage[i].tag_id == tag_id &&
              storage[i].is_used == false) {
         i++;
       }
@@ -327,3 +351,14 @@ bool Disk::executeJump(int unit_id) // 需要执行jump操作
   pointer.token = maxToken;
   return true;
 }
+
+int Disk::pathLen(int current_pos, int unit_id) // 这个还没所有实现
+{
+  if (unit_id >= current_pos) {
+    return unit_id - current_pos;
+  } else {
+    return maxDiskSize - current_pos + unit_id;
+  }
+}
+
+NewDisk::NewDisk() { storage.resize(maxDiskSize); }
