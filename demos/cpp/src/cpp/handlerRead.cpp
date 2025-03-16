@@ -22,11 +22,11 @@ bool handlerread::handlerRequestfromScheduler(readRequest readRequest) {
   // 如果当前磁头预消耗tokens小于当前磁头剩余tokens数量，一个if的行为对应读一个对象的对象块
   for (int i = 0; i < repDisk.size(); i++) {
     int diskID = repDisk[i];
-    if ((diskList[diskID].howManyTokensCost(objUnit[0], whoever)) <
-        diskList[diskID].remainTokens()) {
+    if ((diskList[diskID - 1].howManyTokensCost(objUnit[0], whoever)) <
+        diskList[diskID - 1].remainTokens()) {
       // 可以读
       for (int i{0}; i < objSize; i++) {
-        diskList[diskID].diskRead(objUnit[i]);
+        diskList[diskID - 1].diskRead(objUnit[i]);
       }
       // 先假设我的决策一定是正确的
       isDone = true;

@@ -87,6 +87,9 @@ void Scheduler::myReadScheduler() {
          currentPos++) {
       handlerRead.handlerRequestfromScheduler(readRequestList[currentPos]);
     }
+    // for(int i{0};i<maxDisk;i++){
+
+    // }
     handlerRead.printCompleteRequest();
   } else {
     printf("0\n");
