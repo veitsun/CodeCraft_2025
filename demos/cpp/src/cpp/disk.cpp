@@ -51,7 +51,8 @@ void Disk::setStorageUnit(int Unitindex, DiskUnit unit) {
 std::vector<DiskUnit> Disk::getDiskState() { return storage; }
 
 void Disk::deleteStorageUnit(int Unitindex) {
-  storage[Unitindex].is_deleted = true;
+  // storage[Unitindex].is_deleted = true;
+  storage[Unitindex].is_used = false;
 }
 
 void Disk::diskWrite(int unit_id, int obj_id, int obj_size) {
@@ -61,7 +62,7 @@ void Disk::diskWrite(int unit_id, int obj_id, int obj_size) {
   for (int i = unit_id; i < unit_id + obj_size; i++) {
     storage[i].object_id = obj_id;
     storage[i].object_block_id = i - unit_id + 1;
-    storage[i].is_deleted = false;
+    // storage[i].is_deleted = false;
     storage[i].is_used = true;
   }
 }
@@ -70,7 +71,7 @@ void Disk::diskDelete(int unit_id, int obj_size) {
   int k = 0;
   for (int i = unit_id; i < unit_id + obj_size; i++) {
     k++;
-    storage[i].is_deleted = true;
+    // storage[i].is_deleted = true;
     storage[unit_id].object_block_id = k;
     storage[i].is_used = false;
   }

@@ -17,7 +17,7 @@ handlerwrite handlerwrite;
  */
 bool handlerwrite::handlerRequestfromScheduler(writeRequest writeRequest) {
   bool isDone = false;
-  int diskUnique = 1; // 控制每个rep写到不同磁盘
+  int diskUnique = 0; // 控制每个rep写到不同磁盘
   vector<pair<int, int>> section;
   vector<int> diskNum;
   vector<int> unit;
@@ -28,13 +28,15 @@ bool handlerwrite::handlerRequestfromScheduler(writeRequest writeRequest) {
   // 这里做副本都写
   for (int rep{0}; rep < REP_NUM; rep++) {
     flag = 0;
-    for (int i{diskUnique}; i < maxDisk / 3; i++) {
+    for (int i{diskUnique}; i < maxDisk; i++) {
       if (flag >= 1)
         break;
       section = diskList[i].wherecanput(writeRequest.getObjectTag());
       // 假设返回的section存在可以放的
       for (int j{0}; j < section.size(); j++) {
-        if ((section[j].second - section[j].first) <=
+        // printf("%d+++++%d\n", section[j].second - section[j].first,
+        //        writeRequest.getObjectSize());
+        if ((section[j].second - section[j].first) >=
             writeRequest.getObjectSize()) {
           // 这里的判断是如果能放下的话就调用handler来放，但是现在V1，感觉这里可以直接调用disk
           diskList[i].diskWrite(section[j].first, writeRequest.getObjectId(),
@@ -45,8 +47,11 @@ bool handlerwrite::handlerRequestfromScheduler(writeRequest writeRequest) {
           diskUnique++;
           isDone = true;
           completeObjId = writeRequest.getObjectId();
-          completeRep[rep] = i;
-          for (int unitId{section[j].first}; i < writeRequest.getObjectSize();
+          completeRep[rep] = i + 1;
+          // for (int unitId{section[j].first}; i <
+          // writeRequest.getObjectSize();
+          for (int unitId{section[j].first};
+               unitId <= (section[j].first + writeRequest.getObjectSize() - 1);
                unitId++) {
             completeUnitId[rep].push_back(unitId);
           }
@@ -76,4 +81,8 @@ void handlerwrite::printCompleteRequest() {
     }
     printf("\n");
   }
+  for (int i{0}; i < completeUnitId.size(); i++) {
+    completeUnitId[i].clear();
+  }
+  // completeUnitId.clear();
 }
