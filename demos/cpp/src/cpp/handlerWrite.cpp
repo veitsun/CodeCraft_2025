@@ -9,7 +9,6 @@
 handlerwrite handlerwrite;
 
 Disk disk;
-vector<Disk> diskList;
 
 // 直接发给Disk，告诉Disk从哪开始放，要放多少个,V1没用到
 void handlerwrite::handlerWrite2Disk(int unitStart, int objId, int objSize) {

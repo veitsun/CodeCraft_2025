@@ -38,8 +38,8 @@ void PreProcess::acceptInput() {
     }
   }
   printf("OK\n");
-
   fflush(stdout);
+
   return;
 }
 
@@ -173,6 +173,7 @@ int PreProcess::run() {
   // }
 
   printf("OK\n");
+  fflush(stdout);
 
   return 0;
 }

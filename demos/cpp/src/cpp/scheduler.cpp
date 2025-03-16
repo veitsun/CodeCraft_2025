@@ -3,8 +3,8 @@
 #include "handlerDelete.h"
 #include "handlerRead.h"
 #include "handlerWrite.h"
-#include "object.h"
-#include "objectList.h"
+// #include "object.h"
+// #include "objectList.h"
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -13,6 +13,8 @@
 handlerdelete handleDelete;
 handlerwrite handlerWrite;
 handlerread handlerRead;
+
+vector<Disk> diskList;
 
 void Scheduler::myScheduler() {
 

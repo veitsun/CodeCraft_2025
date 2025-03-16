@@ -1,11 +1,13 @@
 #pragma once
 #include "delRequestList.h"
+// #include "disk.h"
 #include "disk.h"
 #include "objectList.h"
 #include "readRequestList.h"
 #include "writeRequestList.h"
 
-// 公开的信息
+class Disk;
+// 全局声明
 extern vector<Disk> diskList;
 
 extern objectList object_list;
