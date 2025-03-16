@@ -6,10 +6,6 @@
 #include <cstring>
 #include <vector>
 
-// void handlerread::handlerRead2Disk(int unit_id, int obj_size) {
-//   disk.diskDelete(unit_id, obj_size);
-// }
-
 // 现在的行为是读一个对象
 bool handlerread::handlerRequestfromScheduler(readRequest readRequest) {
   bool whoever;

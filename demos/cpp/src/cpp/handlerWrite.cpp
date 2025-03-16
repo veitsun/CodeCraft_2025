@@ -9,13 +9,6 @@
 
 handlerwrite handlerwrite;
 
-// Disk disk;
-
-// 直接发给Disk，告诉Disk从哪开始放，要放多少个,V1没用到
-// void handlerwrite::handlerWrite2Disk(int unitStart, int objId, int objSize) {
-//   disk.diskWrite(unitStart, objId, objSize);
-// }
-
 /*
 ---------------------------BUG todo---------------------------
 ********若选手无法选出三块有足够空间的硬盘存放该对象则选手程序直接判********

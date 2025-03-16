@@ -5,12 +5,6 @@
 #include <cstring>
 #include <vector>
 
-// Disk disk;
-// V1暂时没用这个函数
-// void handlerdelete::handlerDelete2Disk(int unitId, int size) {
-//   disk.diskDelete(unitId, size);
-// }
-
 bool handlerdelete::handlerRequestfromScheduler(delRequest delRequest) {
   bool isDone = false;
   Object obj = object_list.getObject(delRequest.getObjectId());

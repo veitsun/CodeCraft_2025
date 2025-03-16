@@ -6,6 +6,7 @@
 
 int currentTime;
 objectList object_list;
+vector<Disk> diskList;
 
 int main() {
   // 预处理
