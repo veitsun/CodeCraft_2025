@@ -82,6 +82,7 @@ void Scheduler::myWriteScheduler() {
 void Scheduler::myReadScheduler() {
   vector<readRequest> readRequestList = read_request_list.getReadRequest();
   readRequest readRequest;
+  // 读了一个之后，在下一个时间片中又读这个，单磁头往前移动了，且磁头只能单向移动，此时可以选择读其他副本显然更优
   if (readRequestList.size()) {
     for (int currentPos = 0; currentPos < readRequestList.size();
          currentPos++) {

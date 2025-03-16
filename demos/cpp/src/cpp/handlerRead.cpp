@@ -26,8 +26,8 @@ bool handlerread::handlerRequestfromScheduler(readRequest readRequest) {
     if ((diskList[diskID - 1].howManyTokensCost(objUnit[0], whoever)) <
         diskList[diskID - 1].remainTokens()) {
       // 可以读
-      for (int i{0}; i < objSize; i++) {
-        diskList[diskID - 1].diskRead(objUnit[i]);
+      for (int j{0}; j < objSize; j++) {
+        diskList[diskID - 1].diskRead(objUnit[j]);
       }
       // 先假设我的决策一定是正确的
       isDone = true;
@@ -40,9 +40,9 @@ bool handlerread::handlerRequestfromScheduler(readRequest readRequest) {
 }
 
 void handlerread::printCompleteRequest() {
-  printf("%d/n", completeRequest.size());
+  printf("%d\n", completeRequest.size());
   for (int i = 0; i < completeRequest.size(); i++) {
-    printf("%d/n", completeRequest[i]);
+    printf("%d\n", completeRequest[i]);
   }
   return;
 }

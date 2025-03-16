@@ -203,12 +203,22 @@ int Disk::remainTokens() { return pointer.token; }
 int Disk::howManyTokensCost(int objUnit, bool &path) {
 
   int position = pointer.current_position;
-  int distance = objUnit - position;
+  int distance = objUnit - position; // 有正有负
   int p_cos;
   int r_cos = 0;
+  if (distance == 0) {
+    if (pointer.pre_is_read == false) {
+      return 64;
+    } else {
+      int pre_token = pointer.pre_token;
+      r_cos += max(ceil(pre_token * 0.8), 16);
+      // pre_token = max(ceil(pre_token * 0.8), 16);
+      return r_cos;
+    }
+  }
 
   // 可以read或者pass过去的情况
-  if (distance >= 0 && distance < maxToken) {
+  else if (distance >= 0 && distance < maxToken) {
     // 计算p_cos的值
     p_cos = distance + 64;
     // 计算r_cos的值
@@ -220,9 +230,9 @@ int Disk::howManyTokensCost(int objUnit, bool &path) {
       }
     }
 
-    int minToken = min(p_cos, r_cos);
-    (minToken == p_cos) ? path = 0 : path = 1;
-    return minToken;
+    int minTempToken = min(p_cos, r_cos);
+    (minTempToken == p_cos) ? path = 0 : path = 1;
+    return minTempToken;
   } else {
     return maxToken + 1;
   }
