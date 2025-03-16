@@ -18,10 +18,11 @@ using namespace std;
 class requestReceiver {
 private:
   int time_stamp;
-  int request_num;
 
 public:
-  requestReceiver() : time_stamp(0), request_num(-1) {}
+  requestReceiver() : time_stamp(0) {}
   int timestamp_action();
-  void requestAdd();
+  void delRequestAdd();
+  void writeRequestAdd();
+  void readRequestAdd();
 };

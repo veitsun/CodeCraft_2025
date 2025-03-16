@@ -21,13 +21,17 @@ int main() {
   while (currentTime <= maxTime + 105) {
     // 同步时间戳
     currentTime = request_receiver.timestamp_action();
-    // 接收请求
-    request_receiver.requestAdd(); // 接收器可以通过全局变量操作请求队列
-    // 处理请求
-    // scheduler.myScheduler(); // 一个循环跑一次
-    // 分开处理请求
+    // 接收删除请求
+    request_receiver.delRequestAdd(); 
+    //处理删除请求
     scheduler.myDeleteScheduler();
+    //接受写入请求
+    request_receiver.writeRequestAdd();
+    //处理写入请求
     scheduler.myWriteScheduler();
+    //接受读取请求
+    request_receiver.readRequestAdd();
+    //处理读取请求
     scheduler.myReadScheduler();
   }
 

@@ -11,7 +11,7 @@ readRequestList read_request_list;
 
 int requestReceiver::timestamp_action() {
   // fflush(stdout);
-  scanf("%*s%d", &time_stamp);
+  std::scanf("%*s%d", &time_stamp);
   printf("TIMESTAMP %d\n", time_stamp);
 
   fflush(stdout);
@@ -19,35 +19,39 @@ int requestReceiver::timestamp_action() {
 }
 
 // 添加请求
-void requestReceiver::requestAdd() {
+void requestReceiver::delRequestAdd() {
+  int request_num = 0;
   int id = 0;
-  int size = 0;
-  int tag = 0;
-  int request_id = 0;
 
   // 删除请求
-  scanf("%d", &request_num);
+  std::scanf("%d", &request_num);
   if (request_num == 0) { // 没有删除操作，注意需要输出一个0
-    printf("0\n");
-    fflush(stdout);
+    // printf("0\n");
+    // fflush(stdout);
   } else {
     // 逐行读取指令并添加入队列
     for (; request_num > 0; request_num--) {
-      scanf("%d", &id);
+      std::scanf("%d", &id);
       unique_ptr<delRequest> request_now = make_unique<delRequest>();
       request_now->setObjectId(id);
       request_now->setTime(time_stamp);
       del_request_list.addDelRequest(*request_now);
     }
   }
+}
+void requestReceiver::writeRequestAdd() {
+  int request_num = 0;
+  int id = 0;
+  int size = 0;
+  int tag = 0;
 
   // 写入请求
-  scanf("%d", &request_num);
+  std::scanf("%d", &request_num);
   if (request_num == 0)
     ; // 不做任何操作
   else {
     for (; request_num > 0; request_num--) {
-      scanf("%d%d%d", &id, &size, &tag);
+      std::scanf("%d%d%d", &id, &size, &tag);
       unique_ptr<writeRequest> request_now = make_unique<writeRequest>();
       request_now->setObjectId(id);
       request_now->setObjectSize(size);
@@ -56,7 +60,13 @@ void requestReceiver::requestAdd() {
       write_request_list.addWriteRequest(*request_now);
     }
   }
+}
 
+void requestReceiver::readRequestAdd() {
+  int request_num = 0;
+  int request_id = 0;
+  int id = 0;
+  
   // 读取请求
   scanf("%d", &request_num);
   if (request_num == 0)
