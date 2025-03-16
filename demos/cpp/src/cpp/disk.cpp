@@ -37,6 +37,7 @@ void Disk::setTagDistribute() {
   for (; last_flag <= maxDiskSize; last_flag++) {
     storage[last_flag].tag_id = maxTag;
   }
+  // printf("磁盘的tag区间已经划分\n");
 }
 
 DiskUnit Disk::getStorageUnit(int Unitindex) const {
@@ -75,59 +76,60 @@ void Disk::diskDelete(int unit_id, int obj_size) {
   }
 }
 
-void Disk::diskRead(int action, int unit_id) {
-  if (action == 1) {
-    printf("r");
-  } else if (action == 2) {
-    printf("p");
-  } else if (action == 3) {
-    printf("j");
-  } else if (action == 4) {
-    printf("#");
-  }
-  fflush(stdout);
-}
+// void Disk::diskRead(int action, int unit_id) {
+//   if (action == 1) {
+//     printf("r");
+//   } else if (action == 2) {
+//     printf("p");
+//   } else if (action == 3) {
+//     printf("j");
+//   } else if (action == 4) {
+//     printf("#");
+//   }
+//   fflush(stdout);
+// }
 
-vector<pair<int, int>>
-Disk::getStorageUnitIntervalByTag(int tag_id) const // 返回所有这个tag的区间
-{
-  vector<pair<int, int>> res;
-  for (int i = 0; i < maxDiskSize; i++) { // MAX_DISK_SIZE 这个之后应该是 V
-    if (storage[i].tag_id == tag_id) {
-      int start = i;
-      while (i < maxDiskSize && storage[i].tag_id == tag_id) {
-        i++;
-      }
-      res.push_back(make_pair(start, i - 1));
-    }
-  }
-  return res;
-}
+// vector<pair<int, int>>
+// Disk::getStorageUnitIntervalByTag(int tag_id) const // 返回所有这个tag的区间
+// {
+//   vector<pair<int, int>> res;
+//   for (int i = 0; i < maxDiskSize; i++) { // MAX_DISK_SIZE 这个之后应该是 V
+//     if (storage[i].tag_id == tag_id) {
+//       int start = i;
+//       while (i < maxDiskSize && storage[i].tag_id == tag_id) {
+//         i++;
+//       }
+//       res.push_back(make_pair(start, i - 1));
+//     }
+//   }
+//   return res;
+// }
 
-vector<pair<int, int>>
-NewDisk::getStorageUnitIntervalByTag(int tag_id) const // 返回所有这个tag的区间
-{
-  vector<pair<int, int>> res;
-  for (int i = 0; i < maxDiskSize; i++) { // MAX_DISK_SIZE 这个之后应该是 V
-    if (storage[i].tag_id == tag_id) {
-      int start = i;
-      while (i < maxDiskSize && storage[i].tag_id == tag_id) {
-        i++;
-      }
-      res.push_back(make_pair(start, i - 1));
-    }
-  }
-  return res;
-}
+// vector<pair<int, int>>
+// NewDisk::getStorageUnitIntervalByTag(int tag_id) const //
+// 返回所有这个tag的区间
+// {
+//   vector<pair<int, int>> res;
+//   for (int i = 0; i < maxDiskSize; i++) { // MAX_DISK_SIZE 这个之后应该是 V
+//     if (storage[i].tag_id == tag_id) {
+//       int start = i;
+//       while (i < maxDiskSize && storage[i].tag_id == tag_id) {
+//         i++;
+//       }
+//       res.push_back(make_pair(start, i - 1));
+//     }
+//   }
+//   return res;
+// }
 
 vector<pair<int, int>> Disk::wherecanput(
     int tag_id) const // 返回所有这个tag的区间, 并且这个区间都是空闲的
 {
   vector<pair<int, int>> res;
-  for (int i = 0; i < maxDiskSize; i++) { // MAX_DISK_SIZE 这个之后应该是 V
+  for (int i = 1; i <= maxDiskSize; i++) { // MAX_DISK_SIZE 这个之后应该是 V
     if (storage[i].tag_id == tag_id && storage[i].is_used == false) {
       int start = i;
-      while (i < maxDiskSize && storage[i].tag_id == tag_id &&
+      while (i <= maxDiskSize && storage[i].tag_id == tag_id &&
              storage[i].is_used == false) {
         i++;
       }
