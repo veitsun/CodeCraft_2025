@@ -284,14 +284,14 @@ bool Disk::diskRead(int unit_id) {
     return false;
   } else {
     // 当前时间片可以读
-    // path: 0: pass过去, 1: read过去
+    // path: 1: read过去, 0: pass过去
     if (path) {
-      for (int d = 0; d < (unit_id - pointer.current_position); d++) {
+      for (int d = 0; d <= (unit_id - pointer.current_position); d++) {
         // printf("r");
         cache += "r";
       }
     } else {
-      for (int d = 0; d < (unit_id - pointer.current_position - 1); d++) {
+      for (int d = 0; d <= (unit_id - pointer.current_position - 1); d++) {
         // printf("p");
         cache += "p";
       }
