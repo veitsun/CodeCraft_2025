@@ -87,9 +87,11 @@ void Scheduler::myReadScheduler() {
          currentPos++) {
       handlerRead.handlerRequestfromScheduler(readRequestList[currentPos]);
     }
-    // for(int i{0};i<maxDisk;i++){
-
-    // }
+    // 当j的时候也输出了#
+    for (int i{0}; i < maxDisk; i++) {
+      diskList[i].printOncetimeDiskHeadAction();
+      printf("#\n");
+    }
     handlerRead.printCompleteRequest();
   } else {
     printf("0\n");
