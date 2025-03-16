@@ -1,6 +1,7 @@
 #include "preProcess.h"
 
 #include "globalDefines.h"
+#include "globalValue.h"
 
 #include <cstdio>
 #include <iostream>
@@ -23,11 +24,17 @@ vector<TagDistributeInDisk> tagDistributeInAllDisk;
 // tagRepID[1] = <5, 6, 7> 代表 tag1 在 5, 6, 7 磁盘上的备份
 vector<vector<int>> tagRepID;
 
+// 读取预处理数据
 void PreProcess::acceptInput() {
   scanf("%d %d %d %d %d", &maxTime, &maxTag, &maxDisk, &maxDiskSize, &maxToken);
-
   int maxBigTime = (maxTime - 1) / FRE_PER_SLICING;
-  // 读取预处理数据
+
+  tagDistributeInAllDisk.resize(maxDisk + 1);
+  actionOnBlockCount.resize(ACITON_TYPE_COUNT);
+  maxSpaceForTag.resize(maxTag);
+  tagRepID.resize(maxTag);
+  diskList.resize(maxDisk);
+
   for (int action = 0; action < ACITON_TYPE_COUNT; action++) {
     actionOnBlockCount[action].resize(maxTag);
     for (int tag = 0; tag < maxTag; tag++) {
@@ -37,6 +44,7 @@ void PreProcess::acceptInput() {
       }
     }
   }
+  // diskList.resize(maxDisk); //
   printf("OK\n");
   fflush(stdout);
 
@@ -134,12 +142,6 @@ void allockDiskSpaceForTag(vector<int> &diskUsedSpace,
 // --------------------public--------------------
 
 int PreProcess::run() {
-  // 初始化全局变量
-  tagDistributeInAllDisk.resize(maxDisk + 1);
-  actionOnBlockCount.resize(ACITON_TYPE_COUNT);
-  maxSpaceForTag.resize(maxTag);
-  tagRepID.resize(maxTag);
-
   // 读取输入
   acceptInput();
   return 0;

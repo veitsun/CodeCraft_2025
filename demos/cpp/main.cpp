@@ -5,7 +5,7 @@
 #include "scheduler.h"
 
 int currentTime;
-objectList object_list;
+objectList object_list{};
 vector<Disk> diskList;
 
 int main() {

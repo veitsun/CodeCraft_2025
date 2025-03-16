@@ -1,4 +1,5 @@
 #pragma once
+#include "globalDefines.h"
 #include "request.h"
 #include <utility>
 #include <vector>
@@ -11,7 +12,7 @@ private:
   vector<vector<int>> completeUnitId;
   /* data */
 public:
-  handlerwrite(/* args */) {};
+  handlerwrite(/* args */) : completeRep(REP_NUM), completeUnitId(REP_NUM) {};
   ~handlerwrite() {};
   bool handlerRequestfromScheduler(writeRequest writeRequest);
   void handlerWrite2Disk(int unitStart, int objId, int objSize);

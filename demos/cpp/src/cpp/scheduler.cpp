@@ -14,7 +14,7 @@ handlerdelete handleDelete;
 handlerwrite handlerWrite;
 handlerread handlerRead;
 
-// vector<Disk> diskList;
+vector<Disk> diskList;
 
 void Scheduler::myScheduler() {
 

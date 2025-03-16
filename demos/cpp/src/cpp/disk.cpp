@@ -10,11 +10,11 @@
 using namespace std;
 
 Disk::Disk() {
-  storage.resize(maxDiskSize);
-  DiskUnit disk_unit;
-  for (int i = 0; i < maxDiskSize; i++) {
-    storage[i] = disk_unit;
-  }
+  storage.resize(maxDiskSize + 1);
+  // DiskUnit disk_unit;
+  // for (int i = 0; i < maxDiskSize; i++) {
+  //   storage[i] = disk_unit;
+  // }
   setTagDistribute();
 }
 
