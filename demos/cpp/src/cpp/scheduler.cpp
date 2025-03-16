@@ -23,7 +23,7 @@ void Scheduler::myScheduler() {
   delRequest delRequest;
   if (delRequestList.size()) {
     for (int currentPos = 0; currentPos < delRequestList.size(); currentPos++) {
-      handleDelete.handlerRequestfromScheduler(delRequestList[currentPos]);·
+      handleDelete.handlerRequestfromScheduler(delRequestList[currentPos]);
     }
   } else {
     printf("0\n");
