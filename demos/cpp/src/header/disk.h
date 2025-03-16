@@ -11,6 +11,7 @@
 #include "diskPointer.h"
 #include "diskUnit.h"
 #include <cstdio>
+#include <string>
 #include <vector>
 
 // #define MAX_DISK_NUM (10 + 1)
@@ -32,12 +33,15 @@ private:
   int max(int a, int b) { return a > b ? a : b; }
   int min(int a, int b) { return a < b ? a : b; }
   void setTagDistribute();
+  string cache;
+  // vector<char> cache;
 
 public:
   Disk(); // 这个之后改成 V 大小
   ~Disk() {}
 
   // 最新版本是我不需要提供磁盘块号，我只是单个磁盘的抽象
+  void printOncetimeDiskHeadAction();
   DiskUnit getStorageUnit(
       int Unitindex) const; // 传入存储单元编号，返回磁盘单元中的数据对象
   void setStorageUnit(
@@ -51,7 +55,7 @@ public:
   void diskWrite(int unit_id, int obj_id, int obj_size); // 写功能
 
   void diskDelete(int unit_id, int obj_size); // 删除功能
-  void diskRead(int action, int unit_id);     // 读功能
+  // void diskRead(int action, int unit_id);
 
   void executeAction(int action, int unit_id, int obj_id, int obj_blockid);
 

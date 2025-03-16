@@ -5,6 +5,7 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
+#include <string>
 // #include <math.h>
 
 using namespace std;
@@ -38,6 +39,13 @@ void Disk::setTagDistribute() {
     storage[last_flag].tag_id = maxTag;
   }
   // printf("磁盘的tag区间已经划分\n");
+}
+
+void Disk::printOncetimeDiskHeadAction() {
+  // print cache;
+  for (int i = 0; i < cache.length(); i++) {
+    printf("%c", cache[i]);
+  }
 }
 
 DiskUnit Disk::getStorageUnit(int Unitindex) const {
@@ -190,48 +198,34 @@ int Disk::remainTokens() { return pointer.token; }
 // }
 
 // 返回值大于maxToken 即只能 Jump
-//  path: 0: pass过去, 1: read过去
-int Disk::howManyTokensCost(int objUnit,
-                            bool &path) { // 读完整个对象,预消耗消耗okens数量
-  // int sum_tokens = 0;                       // 预消耗 token 数量
-  // // if (pointer.read_nums == 0) {
-  // //   sum_tokens += 64; // 第一次读的时候,那么肯定需要消耗 64 个token
-  // // } else if (pointer.read_nums != 0) {
-  // //   // 如何不是第一次读
-  // // }
-  // // 我要判断 unit_id 和当前磁头的相对位置
-  // int current_pos = pointer.current_position;
-  // int len = pathLen(current_pos, unit_id);
-  // if (len == 0) {
-  //   //
-  // }
+// path: 0: pass过去, 1: read过去
+// howManyTokensCost 返回读这个 objunit 的 token 预花费数
+int Disk::howManyTokensCost(int objUnit, bool &path) {
+
   int position = pointer.current_position;
-  // int = pathLen(position, objUnit);
   int distance = objUnit - position;
   int p_cos;
   int r_cos = 0;
 
-  if (distance > 0 && distance < maxToken) {
-
+  // 可以read或者pass过去的情况
+  if (distance >= 0 && distance < maxToken) {
+    // 计算p_cos的值
     p_cos = distance + 64;
-
-    // for(int i= 0; i < distance; i++) {
-
-    // }
+    // 计算r_cos的值
     if (pointer.pre_is_read == true) {
-
       int pre_token = pointer.pre_token;
-      for (int i = 0; i < distance; i++) {
-        r_cos += min(pre_token * 0.8, 16);
-        pre_token = min(pre_token * 0.8, 16);
+      for (int i = 0; i <= distance; i++) {
+        r_cos += max(ceil(pre_token * 0.8), 16);
+        pre_token = max(ceil(pre_token * 0.8), 16);
       }
     }
 
     int minToken = min(p_cos, r_cos);
     (minToken == p_cos) ? path = 0 : path = 1;
     return minToken;
+  } else {
+    return maxToken + 1;
   }
-  return maxToken + 1;
 }
 
 // bool Disk::diskRead(int unit_id) { // 要不这个改为我是否要jump过去
@@ -266,21 +260,35 @@ int Disk::howManyTokensCost(int objUnit,
 
 bool Disk::diskRead(int unit_id) {
   bool path;
-  int tokenCost = howManyTokensCost(unit_id, path);
-  if (tokenCost > maxToken) {
+  // 计算读这个unit_id的token消耗数
+  int costToken = howManyTokensCost(unit_id, path);
+  int curToken = pointer.token;
+  // tokenCost > curToken 表示当前时间片读不了，只能先J过去，下个时间片再r
+  if (costToken > curToken) {
+    if (curToken == maxToken) {
+      pointer.token = 0;
+      pointer.current_position = unit_id;
+      // printf("j");
+      cache += "j";
+    }
     return false;
   } else {
+    // 当前时间片可以读
+    // path: 0: pass过去, 1: read过去
     if (path) {
       for (int d = 0; d < (unit_id - pointer.current_position); d++) {
-        printf("r");
+        // printf("r");
+        cache += "r";
       }
     } else {
       for (int d = 0; d < (unit_id - pointer.current_position - 1); d++) {
-        printf("p");
+        // printf("p");
+        cache += "p";
       }
-      printf("r");
+      // printf("r");
+      cache += "r";
     }
-    pointer.token -= tokenCost;
+    pointer.token -= costToken;
     pointer.current_position = unit_id;
     return true;
   }
