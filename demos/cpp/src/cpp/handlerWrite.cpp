@@ -2,18 +2,19 @@
 #include "disk.h"
 #include "globalValue.h"
 #include "object.h"
+#include "objectList.h"
 #include <cstdio>
 #include <utility>
 #include <vector>
 
 handlerwrite handlerwrite;
 
-Disk disk;
+// Disk disk;
 
 // 直接发给Disk，告诉Disk从哪开始放，要放多少个,V1没用到
-void handlerwrite::handlerWrite2Disk(int unitStart, int objId, int objSize) {
-  disk.diskWrite(unitStart, objId, objSize);
-}
+// void handlerwrite::handlerWrite2Disk(int unitStart, int objId, int objSize) {
+//   disk.diskWrite(unitStart, objId, objSize);
+// }
 
 /*
 ---------------------------BUG todo---------------------------
@@ -43,8 +44,8 @@ bool handlerwrite::handlerRequestfromScheduler(writeRequest writeRequest) {
         if ((section[j].second - section[j].first) <=
             writeRequest.getObjectSize()) {
           // 这里的判断是如果能放下的话就调用handler来放，但是现在V1，感觉这里可以直接调用disk
-          disk.diskWrite(section[j].first, writeRequest.getObjectId(),
-                         writeRequest.getObjectSize());
+          diskList[i].diskWrite(section[j].first, writeRequest.getObjectId(),
+                                writeRequest.getObjectSize());
           diskNum[rep] = i;
           unit[rep] = section[j].first;
           flag++;

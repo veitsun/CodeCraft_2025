@@ -5,8 +5,8 @@
 #include "readRequestList.h"
 #include "request.h"
 #include "writeRequestList.h"
-#include <vector>
 #include <memory>
+#include <vector>
 
 using namespace std;
 

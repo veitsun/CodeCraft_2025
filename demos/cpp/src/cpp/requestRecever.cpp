@@ -66,7 +66,7 @@ void requestReceiver::readRequestAdd() {
   int request_num = 0;
   int request_id = 0;
   int id = 0;
-  
+
   // 读取请求
   scanf("%d", &request_num);
   if (request_num == 0)
