@@ -80,6 +80,7 @@ void Scheduler::myWriteScheduler() {
 }
 
 void Scheduler::myReadScheduler() {
+  handlerread handlerRead;
   vector<readRequest> readRequestList = read_request_list.getReadRequest();
   readRequest readRequest;
   // 读了一个之后，在下一个时间片中又读这个，单磁头往前移动了，且磁头只能单向移动，此时可以选择读其他副本显然更优
@@ -91,7 +92,10 @@ void Scheduler::myReadScheduler() {
     // 当j的时候也输出了#
     for (int i{0}; i < maxDisk; i++) {
       diskList[i].printOncetimeDiskHeadAction();
-      printf("#\n");
+      if (handlerRead.readFailureForJump != i)
+        printf("#\n");
+      diskList[i].diskPrintCacheClear();
+      diskList[i].diskDiskHeadInit();
     }
     handlerRead.printCompleteRequest();
   } else {

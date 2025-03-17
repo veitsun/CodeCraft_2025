@@ -17,6 +17,7 @@ bool handlerread::handlerRequestfromScheduler(readRequest readRequest) {
   vector<int> objUnit = obj.getObjectUnit();
   vector<int> repDisk = obj.getObjectDisk();
   int objSize = obj.getObjectSize();
+  bool judge = true;
   // 我现在每一个副本写的位置都是一样的，每个副本写在不同的磁盘，每个副本在各自磁盘的位置相同，所以我现在读，只需要读一个副本即可，虽然他这里给的unit是三个副本的数据，但是每个副本的数据都是一样的，所以我用第一个就ok了
   // 遍历这个对象的对象块
   // 如果当前磁头预消耗tokens小于当前磁头剩余tokens数量，一个if的行为对应读一个对象的对象块
@@ -24,16 +25,24 @@ bool handlerread::handlerRequestfromScheduler(readRequest readRequest) {
     int diskID = repDisk[i];
     int checkHowManyTokensCost =
         (diskList[diskID - 1].howManyTokensCost(objUnit[0], whoever));
+    // 这个逻辑里面不存在跳操作
+    // if (checkHowManyTokensCost >= 101) {
+    //   readFailureForJump = diskID - 1;
+    // }
     int checkRemainTokens = diskList[diskID - 1].remainTokens();
     if ((diskList[diskID - 1].howManyTokensCost(objUnit[0], whoever)) <
         diskList[diskID - 1].remainTokens()) {
       // 可以读
       for (int j{0}; j < objSize; j++) {
-        diskList[diskID - 1].diskRead(objUnit[j]);
+        judge = diskList[diskID - 1].diskRead(objUnit[j] + j);
       }
-      // 先假设我的决策一定是正确的
-      isDone = true;
-      completeRequest.push_back(readRequest.getRequestId());
+      if (judge == false) {
+        // 如果没读到（一定是j才没读到），就返回这个磁盘的id,这里的readFailureForToken是暂时还没有用的，但是也是可以的
+        readFailureForToken = diskID - 1;
+      } else {
+        isDone = true;
+        completeRequest.push_back(readRequest.getRequestId());
+      }
       break;
     }
   }

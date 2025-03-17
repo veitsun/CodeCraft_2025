@@ -27,6 +27,8 @@ bool handlerwrite::handlerRequestfromScheduler(writeRequest writeRequest) {
 
   // 这里做副本都写
   for (int rep{0}; rep < REP_NUM; rep++) {
+    // printf("副本 %d 写入\n", rep);
+    // fflush(stdout);
     flag = 0;
     for (int i{diskUnique}; i < maxDisk; i++) {
       if (flag >= 1)

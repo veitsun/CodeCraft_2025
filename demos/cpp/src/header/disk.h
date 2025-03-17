@@ -8,6 +8,7 @@
 
 #include <tuple>
 
+#include "SonDisk.h"
 #include "diskPointer.h"
 #include "diskUnit.h"
 #include <cstdio>
@@ -39,6 +40,10 @@ private:
 public:
   Disk(); // 这个之后改成 V 大小
   ~Disk() {}
+
+  void addObjectInDisk();
+  void diskPrintCacheClear();
+  void diskDiskHeadInit();
 
   // 最新版本是我不需要提供磁盘块号，我只是单个磁盘的抽象
   void printOncetimeDiskHeadAction();
@@ -82,17 +87,12 @@ public:
   int pathLen(int current_pos, int unit_id); // 这个还没所有实现
 };
 
-class NewDisk : public Disk {
+class NewDisk {
 private:
   /* data */
-
-  std::vector<DiskUnit> storage; // storage 的大小是V
-  DiskPointer pointer;
+  vector<DiskNewUnit> storage;
+  vector<SonDisk> sonDiskList;
 
 public:
-  NewDisk(); // 这个之后改成 V 大小
-  ~NewDisk() {}
-
-  vector<pair<int, int>>
-  getStorageUnitIntervalByTag(int tag_id) const; // 返回所有这个tag的区间
+  NewDisk(vector<int> tagVector);
 };

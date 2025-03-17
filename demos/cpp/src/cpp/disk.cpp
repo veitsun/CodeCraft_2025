@@ -1,10 +1,12 @@
 #include "disk.h"
+#include "SonDisk.h"
 #include "diskUnit.h"
 #include "globalValue.h"
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
+#include <new>
 #include <string>
 // #include <math.h>
 
@@ -40,6 +42,10 @@ void Disk::setTagDistribute() {
   }
   // printf("磁盘的tag区间已经划分\n");
 }
+
+void Disk::diskPrintCacheClear() { cache.clear(); }
+
+void Disk::diskDiskHeadInit() { pointer.token = maxToken; }
 
 void Disk::printOncetimeDiskHeadAction() {
   // print cache;
@@ -198,7 +204,7 @@ int Disk::remainTokens() { return pointer.token; }
 // }
 
 // 返回值大于maxToken 即只能 Jump
-// path: 0: pass过去, 1: read过去
+// path: false: pass过去, true: read过去
 // howManyTokensCost 返回读这个 objunit 的 token 预花费数
 int Disk::howManyTokensCost(int objUnit, bool &path) {
 
@@ -208,11 +214,13 @@ int Disk::howManyTokensCost(int objUnit, bool &path) {
   int r_cos = 0;
   if (distance == 0) {
     if (pointer.pre_is_read == false) {
+      path = true;
       return 64;
     } else {
       int pre_token = pointer.pre_token;
       r_cos += max(ceil(pre_token * 0.8), 16);
       // pre_token = max(ceil(pre_token * 0.8), 16);
+      path = true;
       return r_cos;
     }
   }
@@ -227,6 +235,17 @@ int Disk::howManyTokensCost(int objUnit, bool &path) {
       for (int i = 0; i <= distance; i++) {
         r_cos += max(ceil(pre_token * 0.8), 16);
         pre_token = max(ceil(pre_token * 0.8), 16);
+      }
+    } else if (pointer.pre_is_read == false) {
+      int TempTokens = 64;
+      for (int i = 0; i <= distance; i++) {
+        if (i == 0) {
+          r_cos += TempTokens;
+          TempTokens = 64;
+        } else {
+          r_cos += max(ceil(TempTokens * 0.8), 16);
+          TempTokens = max(ceil(TempTokens * 0.8), 16);
+        }
       }
     }
 
@@ -273,14 +292,18 @@ bool Disk::diskRead(int unit_id) {
   // 计算读这个unit_id的token消耗数
   int costToken = howManyTokensCost(unit_id, path);
   int curToken = pointer.token;
+  if (curToken < costToken)
+    return false;
   // tokenCost > curToken 表示当前时间片读不了，只能先J过去，下个时间片再r
-  if (costToken > curToken) {
-    if (curToken == maxToken) {
-      pointer.token = 0;
-      pointer.current_position = unit_id;
-      // printf("j");
-      cache += "j";
-    }
+  if (costToken > curToken && curToken == maxToken) {
+    pointer.token = maxToken;
+    // 就执行了跳的动作了
+    pointer.current_position = unit_id;
+    // pointer.pre_is_read = false;
+    // printf("j");
+    cache += "j " + std::to_string(unit_id);
+    pointer.pre_is_read = false;
+    // pointer.
     return false;
   } else {
     // 当前时间片可以读
@@ -288,18 +311,51 @@ bool Disk::diskRead(int unit_id) {
     if (path) {
       for (int d = 0; d <= (unit_id - pointer.current_position); d++) {
         // printf("r");
+        if (pointer.pre_is_read == false) {
+          // pointer.pre_token = 64;
+          if (pointer.token - 64 < 0) {
+            pointer.current_position = pointer.current_position + d;
+            return false;
+          }
+          pointer.token -= 64;
+          pointer.pre_is_read = true;
+          pointer.pre_token = 64;
+        } else {
+          if (pointer.token - max(ceil(pointer.pre_token * 0.8), 16) < 0) {
+            pointer.current_position = pointer.current_position + d;
+            return false;
+          }
+          pointer.token -= max(ceil(pointer.pre_token * 0.8), 16);
+          pointer.pre_token = max(ceil(pointer.pre_token * 0.8), 16);
+          pointer.pre_is_read = true;
+        }
         cache += "r";
       }
     } else {
       for (int d = 0; d <= (unit_id - pointer.current_position - 1); d++) {
         // printf("p");
+        if (pointer.token - 1 < 0) {
+          pointer.current_position = pointer.current_position + d;
+          return false;
+        }
         cache += "p";
+        pointer.token -= 1;
+        // pointer.pre_token =
+        pointer.pre_is_read = false;
+        // pointer.
       }
+      if (pointer.token - 64 < 0) {
+        pointer.current_position = pointer.current_position + unit_id;
+        return false;
+      }
+      pointer.token -= 64;
+      pointer.pre_is_read = true;
+      pointer.pre_token = 64;
       // printf("r");
       cache += "r";
     }
-    pointer.token -= costToken;
-    pointer.current_position = unit_id;
+    // pointer.token -= costToken;
+    pointer.current_position = unit_id + 1;
     return true;
   }
 }
@@ -386,4 +442,17 @@ int Disk::pathLen(int current_pos, int unit_id) // 这个还没所有实现
   }
 }
 
-NewDisk::NewDisk() { storage.resize(maxDiskSize); }
+// NewDisk::NewDisk() { storage.resize(maxDiskSize); }
+
+NewDisk::NewDisk(vector<int> tagVector) {
+  // 根据传进来的tag 数，将磁盘按tag分区
+  int tagNum = tagVector.size();
+  int oneTagLength = maxDiskSize / tagNum;
+  int last_flag = oneTagLength * maxTag + 1; // 最后的那个空出来
+  sonDiskList.resize(tagNum);
+  for (int i = 0; i < tagNum; i++) {
+    sonDiskList[i].initSonDisk(tagVector[i], oneTagLength);
+  }
+}
+
+// int main()

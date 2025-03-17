@@ -7,7 +7,11 @@ private:
   vector<int> completeRequest;
 
 public:
-  handlerread(/* args */) {};
+  int readFailureForJump = -1;
+  int readFailureForToken = -1;
+  handlerread(/* args */) {
+
+  };
   ~handlerread() {};
   void handlerRead2Disk(int action, int unitId);
   bool handlerRequestfromScheduler(readRequest readRequest);

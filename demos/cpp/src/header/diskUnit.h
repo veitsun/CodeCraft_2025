@@ -24,8 +24,12 @@ public:
   }
 };
 
-// class DiskUnitImplement1 : public DiskUnit {
-// private:
-// public:
-//   void clear() {};
-// };
+class DiskNewUnit {
+private:
+public:
+  // int object_id;
+  // virtual void clear() = 0;
+  DiskNewUnit() {
+    // object_id = 0;
+  }
+};
