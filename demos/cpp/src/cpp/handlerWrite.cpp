@@ -46,7 +46,8 @@ bool handlerwrite::handlerRequestfromScheduler(writeRequest writeRequest) {
           diskNum[rep] = i + 1;
           unit[rep] = section[j].first;
           flag++;
-          diskUnique++;
+          // diskUnique++;
+          diskUnique = i + 1;
           isDone = true;
           completeObjId = writeRequest.getObjectId();
           completeRep[rep] = i + 1;

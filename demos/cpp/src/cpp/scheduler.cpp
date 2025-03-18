@@ -120,24 +120,6 @@ void Scheduler::myReadScheduler() {
   int readFailId, readFailObjSize;
   // 对之前时间片中未读完的读请求做读操作
   if (readNotDone.size()) {
-    // while (!readNotDone.empty()) {
-    //   auto &element = readNotDone.back();
-    //   int requestId = std::get<0>(element);
-    //   vector<int> &requestObjUnit = std::get<1>(element);
-    //   int &requestObjSize = std::get<2>(element);
-    //   isdone = handlerRead.handlerRequestfromScheduler(
-    //       read_request_list.getreadRequestByRequestId(requestId),
-    //       requestObjUnit, requestObjSize);
-    //   // 如果这个时间片读成功了，则将这个请求从readNotDone里面删除
-    //   if (isdone.first == true) {
-    //     readNotDone.pop_back();
-    //   } else {
-    //     for (int n{0}; n < 3; n++) {
-    //       requestObjUnit[n] += isdone.second;
-    //       requestObjSize -= isdone.second;
-    //     }
-    //   }
-    // }
     for (auto it = readNotDone.begin(); it != readNotDone.end();) {
       // auto &element = readNotDone.back();
 
@@ -201,7 +183,7 @@ void Scheduler::myReadScheduler() {
       diskList[i].diskPrintCacheClear();
       diskList[i].diskDiskHeadInit();
     }
-    printf("0\n");
+    handlerRead.printCompleteRequest();
   }
 
   fflush(stdout);

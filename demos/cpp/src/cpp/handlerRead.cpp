@@ -7,6 +7,7 @@
 #include <vector>
 
 // 现在的行为是读一个对象
+// 不跨时间片读
 pair<bool, int>
 handlerread::handlerRequestfromScheduler(readRequest readRequest) {
   bool whoever;
@@ -20,7 +21,8 @@ handlerread::handlerRequestfromScheduler(readRequest readRequest) {
   vector<int> repDisk = obj.getObjectDisk();
   int objSize = obj.getObjectSize();
 
-  bool judge = true;
+  // bool judge = true;
+  bool judge = false;
   vector<int> setObjUnit;
   setObjUnit.resize(3);
   // 我现在每一个副本写的位置都是一样的，每个副本写在不同的磁盘，每个副本在各自磁盘的位置相同，所以我现在读，只需要读一个副本即可，虽然他这里给的unit是三个副本的数据，但是每个副本的数据都是一样的，所以我用第一个就ok了
@@ -30,6 +32,9 @@ handlerread::handlerRequestfromScheduler(readRequest readRequest) {
     int diskID = repDisk[i];
     int checkHowManyTokensCost =
         (diskList[diskID - 1].howManyTokensCost(objUnit[0], whoever));
+    if (checkHowManyTokensCost == maxToken + 1) {
+      diskList[diskID - 1].diskRead(objUnit[0]);
+    }
     // 这个逻辑里面不存在跳操作
     // if (checkHowManyTokensCost >= 101) {
     //   readFailureForJump = diskID - 1;
@@ -68,6 +73,7 @@ handlerread::handlerRequestfromScheduler(readRequest readRequest) {
   return isDone;
 }
 
+// 用于跨时间片读
 pair<bool, int> handlerread::handlerRequestfromScheduler(
     readRequest readRequest, vector<int> objUnitFromOnce, int objSizeFromOnce) {
   bool whoever;
@@ -81,7 +87,8 @@ pair<bool, int> handlerread::handlerRequestfromScheduler(
   vector<int> repDisk = obj.getObjectDisk();
   int objSize = objSizeFromOnce;
 
-  bool judge = true;
+  // bool judge = true;
+  bool judge = false;
   vector<int> setObjUnit;
   setObjUnit.resize(3);
   // 我现在每一个副本写的位置都是一样的，每个副本写在不同的磁盘，每个副本在各自磁盘的位置相同，所以我现在读，只需要读一个副本即可，虽然他这里给的unit是三个副本的数据，但是每个副本的数据都是一样的，所以我用第一个就ok了
@@ -91,6 +98,9 @@ pair<bool, int> handlerread::handlerRequestfromScheduler(
     int diskID = repDisk[i];
     int checkHowManyTokensCost =
         (diskList[diskID - 1].howManyTokensCost(objUnit[0], whoever));
+    if (checkHowManyTokensCost == maxToken + 1) {
+      diskList[diskID - 1].diskRead(objUnit[0]);
+    }
     // 这个逻辑里面不存在跳操作
     // if (checkHowManyTokensCost >= 101) {
     //   readFailureForJump = diskID - 1;
