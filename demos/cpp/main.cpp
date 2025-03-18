@@ -29,7 +29,8 @@ int main() {
     request_receiver.writeRequestAdd();
     // 处理写入请求
     scheduler.myWriteScheduler();
-    // 接受读取请求
+    // 先清空读请求队列，再读入新的请求
+    // read_request_list.clearReadRequestList();
     request_receiver.readRequestAdd();
     // 处理读取请求
     scheduler.myReadScheduler();

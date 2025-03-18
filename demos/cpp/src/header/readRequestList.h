@@ -14,11 +14,13 @@ using namespace std;
   */
 class readRequestList {
 private:
-  list<readRequest> read_request_list;
+  list<readRequest> readrequestlist;
 
 public:
   readRequestList() {};
   void addReadRequest(readRequest request);
   vector<readRequest> getReadRequest();
   bool listIsEmpty();
+  readRequest getreadRequestByRequestId(int requestId);
+  void clearReadRequestList() { readrequestlist.clear(); };
 };

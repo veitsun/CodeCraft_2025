@@ -12,7 +12,7 @@ bool handlerdelete::handlerRequestfromScheduler(delRequest delRequest) {
   vector<int> diskIndx = obj.getObjectDisk();
   vector<int> objUnit = obj.getObjectUnit();
   for (int i{0}; i < REP_NUM; i++) {
-    diskList[diskIndx[i]].diskDelete(objUnit[i], objSize);
+    diskList[diskIndx[i] - 1].diskDelete(objUnit[i], objSize);
   }
 
   return isDone;

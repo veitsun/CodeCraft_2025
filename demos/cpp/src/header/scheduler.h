@@ -6,6 +6,10 @@
 // #include "preProcess.h"
 
 #include <cstdio>
+#include <list>
+#include <tuple>
+#include <vector>
+using namespace std;
 
 class Scheduler {
 private:
@@ -13,6 +17,8 @@ private:
 public:
   Scheduler(/* args */) {};
   ~Scheduler() {};
+  // 没有完成的读请求vector，请求号、剩余unit起始位置、剩余unit数量,list是一个链表
+  list<tuple<int, vector<int>, int>> readNotDone;
   void myScheduler();
 
   void myDeleteScheduler();

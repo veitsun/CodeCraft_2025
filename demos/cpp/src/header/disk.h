@@ -15,13 +15,6 @@
 #include <string>
 #include <vector>
 
-// #define MAX_DISK_NUM (10 + 1)
-// #define MAX_DISK_SIZE (16384 + 1)
-// #define MAX_REQUEST_NUM (30000000 + 1)
-// #define MAX_OBJECT_NUM (100000 + 1)
-// #define REP_NUM (3)
-// #define FRE_PER_SLICING (1800)
-// #define EXTRA_TIME (105)
 using namespace std;
 
 class Disk {
@@ -30,7 +23,7 @@ private:
   std::vector<DiskUnit> storage; // storage 的大小是V
   DiskPointer pointer;
   // vector<pair<int, int>> res;
-  void reset(); // 这个暂且没有用
+  // void reset(); // 这个暂且没有用
   int max(int a, int b) { return a > b ? a : b; }
   int min(int a, int b) { return a < b ? a : b; }
   void setTagDistribute();
@@ -41,30 +34,18 @@ public:
   Disk(); // 这个之后改成 V 大小
   ~Disk() {}
 
-  void addObjectInDisk();
+  // void addObjectInDisk();
   void diskPrintCacheClear();
   void diskDiskHeadInit();
 
   // 最新版本是我不需要提供磁盘块号，我只是单个磁盘的抽象
   void printOncetimeDiskHeadAction();
-  DiskUnit getStorageUnit(
-      int Unitindex) const; // 传入存储单元编号，返回磁盘单元中的数据对象
-  void setStorageUnit(
-      int Unitindex,
-      DiskUnit unit); // 传入存储单元编号，和要存入的对象。返回值为空.
-                      // 写
-  std::vector<DiskUnit> getDiskState(); // 返回磁盘块的磁盘单元数组
 
-  void deleteStorageUnit(int Unitindex); // 删除磁盘块的磁盘单元数组中的数据
+  std::vector<DiskUnit> getDiskState(); // 返回磁盘块的磁盘单元数组
 
   void diskWrite(int unit_id, int obj_id, int obj_size); // 写功能
 
   void diskDelete(int unit_id, int obj_size); // 删除功能
-  // void diskRead(int action, int unit_id);
-
-  void executeAction(int action, int unit_id, int obj_id, int obj_blockid);
-
-  void writeValueByTag(int unit_id, int obj_id, int obj_blockid, int tag_id);
 
   vector<pair<int, int>>
   getStorageUnitIntervalByTag(int tag_id) const; // 返回所有这个tag的区间
@@ -82,9 +63,23 @@ public:
 
   bool diskRead(int unit_id); // 读单个对象块,执行具体的读动作,读取成功返回 true
 
+  int pathLen(int current_pos, int unit_id); // 这个还没所有实现
+
   bool executeJump(int unit_id); // 需要执行jump操作,这是具体的执行动作
 
-  int pathLen(int current_pos, int unit_id); // 这个还没所有实现
+  // DiskUnit getStorageUnit(
+  //     int Unitindex) const; // 传入存储单元编号，返回磁盘单元中的数据对象
+  // void setStorageUnit(
+  //     int Unitindex,
+  //     DiskUnit unit); // 传入存储单元编号，和要存入的对象。返回值为空.
+
+  // void diskRead(int action, int unit_id);
+
+  // void executeAction(int action, int unit_id, int obj_id, int obj_blockid);
+
+  // void writeValueByTag(int unit_id, int obj_id, int obj_blockid, int tag_id);
+
+  // void deleteStorageUnit(int Unitindex); // 删除磁盘块的磁盘单元数组中的数据
 };
 
 class NewDisk {
