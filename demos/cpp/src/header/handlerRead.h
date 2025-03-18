@@ -10,6 +10,7 @@ private:
 public:
   int readFailureForJump = -1;
   int readFailureForToken = -1;
+  vector<int> whichDiskIJumped;
   handlerread(/* args */) {
 
   };

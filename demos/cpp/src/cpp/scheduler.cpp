@@ -109,6 +109,7 @@ void Scheduler::myWriteScheduler() {
 }
 
 void Scheduler::myReadScheduler() {
+  int flagggg = -1;
   handlerread handlerRead;
   vector<readRequest> readRequestList = read_request_list.getReadRequest();
   readRequest doLastRead;
@@ -166,11 +167,18 @@ void Scheduler::myReadScheduler() {
       }
     }
 
-    //  当j的时候也输出了#
+    //  当j的时候不输出#
     for (int i{0}; i < maxDisk; i++) {
       diskList[i].printOncetimeDiskHeadAction();
-      if (handlerRead.readFailureForJump != i)
+      for (int q{0}; q < handlerRead.whichDiskIJumped.size(); q++) {
+        if (handlerRead.whichDiskIJumped[q] == i) {
+          flagggg = i;
+          break;
+        }
+      }
+      if (i != flagggg) {
         printf("#\n");
+      }
       diskList[i].diskPrintCacheClear();
       diskList[i].diskDiskHeadInit();
     }
@@ -178,8 +186,15 @@ void Scheduler::myReadScheduler() {
   } else {
     for (int i{0}; i < maxDisk; i++) {
       diskList[i].printOncetimeDiskHeadAction();
-      if (handlerRead.readFailureForJump != i)
+      for (int q{0}; q < handlerRead.whichDiskIJumped.size(); q++) {
+        if (handlerRead.whichDiskIJumped[q] == i) {
+          flagggg = i;
+          break;
+        }
+      }
+      if (i != flagggg) {
         printf("#\n");
+      }
       diskList[i].diskPrintCacheClear();
       diskList[i].diskDiskHeadInit();
     }
