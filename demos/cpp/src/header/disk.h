@@ -27,7 +27,7 @@ private:
   int max(int a, int b) { return a > b ? a : b; }
   int min(int a, int b) { return a < b ? a : b; }
   void setTagDistribute();
-  string cache;
+  string cache{};
   // vector<char> cache;
 
 public:
@@ -39,7 +39,7 @@ public:
   void diskDiskHeadInit();
 
   // 最新版本是我不需要提供磁盘块号，我只是单个磁盘的抽象
-  void printOncetimeDiskHeadAction();
+  string getOncetimeDiskHeadAction();
 
   void diskWrite(int unit_id, int obj_id, int obj_size); // 写功能
 

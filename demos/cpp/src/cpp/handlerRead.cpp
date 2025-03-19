@@ -33,7 +33,7 @@ handlerread::handlerRequestfromScheduler(readRequest readRequest) {
     int checkHowManyTokensCost =
         (diskList[diskID - 1].howManyTokensCost(objUnit[0], whoever));
     if (checkHowManyTokensCost == maxToken + 1) {
-      whichDiskIJumped.push_back(diskID - 1);
+      whichDiskIJumped.emplace_back(diskID - 1);
       diskList[diskID - 1].diskRead(objUnit[0]);
     }
     // 这个逻辑里面不存在跳操作
@@ -65,7 +65,7 @@ handlerread::handlerRequestfromScheduler(readRequest readRequest) {
         readFailureForToken = diskID - 1;
       } else {
         isDone.first = true;
-        completeRequest.push_back(readRequest.getRequestId());
+        completeRequest.emplace_back(readRequest.getRequestId());
       }
       break;
     }
@@ -100,7 +100,7 @@ pair<bool, int> handlerread::handlerRequestfromScheduler(
     int checkHowManyTokensCost =
         (diskList[diskID - 1].howManyTokensCost(objUnit[0], whoever));
     if (checkHowManyTokensCost == maxToken + 1) {
-      whichDiskIJumped.push_back(diskID - 1);
+      whichDiskIJumped.emplace_back(diskID - 1);
       diskList[diskID - 1].diskRead(objUnit[0]);
     }
     // 这个逻辑里面不存在跳操作
@@ -132,7 +132,7 @@ pair<bool, int> handlerread::handlerRequestfromScheduler(
         readFailureForToken = diskID - 1;
       } else {
         isDone.first = true;
-        completeRequest.push_back(readRequest.getRequestId());
+        completeRequest.emplace_back(readRequest.getRequestId());
       }
       break;
     }

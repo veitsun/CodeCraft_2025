@@ -8,6 +8,8 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <iostream>
+#include <iterator>
 #include <tuple>
 #include <vector>
 
@@ -80,7 +82,7 @@ void Scheduler::myDeleteScheduler() {
          */
         if (read_request_list.getreadRequestByRequestId(std::get<0>(*it))
                 .getObjectId() == delRequestList[i].getObjectId()) {
-          deleteReadRequest.push_back(std::get<0>(*it));
+          deleteReadRequest.emplace_back(std::get<0>(*it));
           it = readNotDone.erase(it);
         } else {
           ++it;
@@ -114,6 +116,9 @@ void Scheduler::myReadScheduler() {
   vector<readRequest> readRequestList = read_request_list.getReadRequest();
   readRequest doLastRead;
   vector<int> readFailUnit;
+  string printCache;
+  string temp;
+  int num;
   readFailUnit.resize(3);
 
   // 用于判断当前读请求是否完成
@@ -121,6 +126,35 @@ void Scheduler::myReadScheduler() {
   int readFailId, readFailObjSize;
   // 对之前时间片中未读完的读请求做读操作
   if (readNotDone.size()) {
+
+    // readNotDone反向循环
+    //  for (auto rit = readNotDone.rbegin(); rit != readNotDone.rend();) {
+    //    // auto &element = readNotDone.back();
+
+    //   int requestId = std::get<0>(*rit);
+    //   vector<int> &requestObjUnit = std::get<1>(*rit);
+    //   int &requestObjSize = std::get<2>(*rit);
+    //   isdone = handlerRead.handlerRequestfromScheduler(
+    //       read_request_list.getreadRequestByRequestId(requestId),
+    //       requestObjUnit, requestObjSize);
+    //   if (isdone.first) {
+    //     // 获得反向迭代器的正向迭代器
+    //     auto it = rit.base();
+    //     // 反向的正向在反向的下一个所以要--来指向要删除的元素
+    //     --it;
+    //     // readNotDone.pop_back();
+    //     it = readNotDone.erase(it);
+    //     rit = std::reverse_iterator<decltype(it)>(it);
+    //   } else {
+    //     for (int n{0}; n < 3; n++) {
+    //       requestObjUnit[n] += isdone.second;
+    //       requestObjSize -= isdone.second;
+    //     }
+    //     ++rit;
+    //   }
+    // }
+
+    // readNotDone正向循环
     for (auto it = readNotDone.begin(); it != readNotDone.end();) {
       // auto &element = readNotDone.back();
 
@@ -162,14 +196,14 @@ void Scheduler::myReadScheduler() {
           readFailUnit[m] = objUnit[m] + isdone.second;
         }
         readFailObjSize = objSize - isdone.second;
-        readNotDone.push_back(
+        readNotDone.emplace_back(
             make_tuple(readFailId, readFailUnit, readFailObjSize));
       }
     }
 
     //  当j的时候不输出#
     for (int i{0}; i < maxDisk; i++) {
-      diskList[i].printOncetimeDiskHeadAction();
+      printCache = diskList[i].getOncetimeDiskHeadAction();
       for (int q{0}; q < handlerRead.whichDiskIJumped.size(); q++) {
         if (handlerRead.whichDiskIJumped[q] == i) {
           flagggg = i;
@@ -177,15 +211,25 @@ void Scheduler::myReadScheduler() {
         }
       }
       if (i != flagggg) {
-        printf("#\n");
+        cout << printCache;
+        cout << "#";
+      } else {
+        cout << printCache[0];
+        cout << printCache[1];
+        for (int u{2}; u < printCache.size(); u++) {
+          temp += printCache[u];
+        }
+        num = std::stoi(temp);
+        cout << num;
       }
       diskList[i].diskPrintCacheClear();
       diskList[i].diskDiskHeadInit();
+      cout << endl;
     }
     handlerRead.printCompleteRequest();
   } else {
     for (int i{0}; i < maxDisk; i++) {
-      diskList[i].printOncetimeDiskHeadAction();
+      printCache = diskList[i].getOncetimeDiskHeadAction();
       for (int q{0}; q < handlerRead.whichDiskIJumped.size(); q++) {
         if (handlerRead.whichDiskIJumped[q] == i) {
           flagggg = i;
@@ -193,13 +237,24 @@ void Scheduler::myReadScheduler() {
         }
       }
       if (i != flagggg) {
-        printf("#\n");
+        cout << printCache;
+        cout << "#";
+      } else {
+        cout << printCache[0];
+        cout << printCache[1];
+        for (int u{2}; u < printCache.size(); u++) {
+          temp += printCache[u];
+        }
+        num = std::stoi(temp);
+        cout << num;
       }
       diskList[i].diskPrintCacheClear();
       diskList[i].diskDiskHeadInit();
+      cout << endl;
     }
     handlerRead.printCompleteRequest();
   }
 
   fflush(stdout);
+  std::cout.flush();
 }

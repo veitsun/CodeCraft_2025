@@ -6,6 +6,7 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
+#include <iostream>
 #include <new>
 #include <string>
 // #include <math.h>
@@ -39,11 +40,15 @@ void Disk::diskPrintCacheClear() { cache.clear(); }
 
 void Disk::diskDiskHeadInit() { pointer.token = maxToken; }
 
-void Disk::printOncetimeDiskHeadAction() {
+string Disk::getOncetimeDiskHeadAction() {
   // print cache;
-  for (int i = 0; i < cache.length(); i++) {
-    printf("%c", cache[i]);
-  }
+  // for (int i = 0; i < cache.length(); i++) {
+  //   printf("%c", cache[i]);
+  // }
+  // std::getline(std::cin, cache);
+  // std::cout << cache;
+  // cout.flush();
+  return this->cache;
 }
 
 void Disk::diskWrite(int unit_id, int obj_id, int obj_size) {
@@ -149,7 +154,13 @@ int Disk::howManyTokensCost(int objUnit, bool &path) {
     (minTempToken == p_cos) ? path = 0 : path = 1;
     return minTempToken;
   } else {
-    return maxToken + 1;
+    // 磁头 和 要读位置的距离大于等于 maxToken
+    if (pointer.token == maxToken) {
+      // 剩余的token 都没有消耗，才能执行跳 的 操作；
+      return maxToken + 1;
+    }
+    // 只能留给下一个时间片处理
+    return maxToken + 2;
   }
 }
 
@@ -251,7 +262,11 @@ bool Disk::executeJump(int unit_id) // 需要执行jump操作
   }
   pointer.token = maxToken;
   pointer.current_position = unit_id;
-  cache += "j " + std::to_string(unit_id);
+  cache += std::string("j ");
+  // std::cout << cache << std::endl;
+  cache += std::to_string(unit_id);
+  // std::cout << cache << std::endl;
+  // cout.flush();
   pointer.pre_is_read = false;
   pointer.pre_token = maxToken;
   return true;

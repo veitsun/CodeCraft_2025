@@ -56,7 +56,7 @@ bool handlerwrite::handlerRequestfromScheduler(writeRequest writeRequest) {
           for (int unitId{section[j].first};
                unitId <= (section[j].first + writeRequest.getObjectSize() - 1);
                unitId++) {
-            completeUnitId[rep].push_back(unitId);
+            completeUnitId[rep].emplace_back(unitId);
           }
           break;
         }
