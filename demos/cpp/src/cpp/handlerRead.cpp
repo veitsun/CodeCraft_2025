@@ -8,11 +8,11 @@
 
 // 现在的行为是读一个对象
 // 不跨时间片读
-pair<bool, int>
+tuple<bool, int, int>
 handlerread::handlerRequestfromScheduler(readRequest readRequest) {
   bool whoever;
-  pair<bool, int> isDone;
-  isDone.first = false;
+  tuple<bool, int, int> isDone;
+  std::get<0>(isDone) = false;
 
   int costTokens;
   // int objUnit[REP_NUM];
@@ -32,9 +32,15 @@ handlerread::handlerRequestfromScheduler(readRequest readRequest) {
     int diskID = repDisk[i];
     int checkHowManyTokensCost =
         (diskList[diskID - 1].howManyTokensCost(objUnit[0], whoever));
+    // 跳逻辑
     if (checkHowManyTokensCost == maxToken + 1) {
       whichDiskIJumped.emplace_back(diskID - 1);
-      diskList[diskID - 1].diskRead(objUnit[0]);
+      // 跳本来应该返回false
+      std::get<0>(isDone) = diskList[diskID - 1].diskRead(objUnit[0]);
+      // 如果跳了，就说明一个obj的unit都没读到
+      std::get<1>(isDone) = 0;
+      std::get<2>(isDone) = diskID;
+      break;
     }
     // 这个逻辑里面不存在跳操作
     // if (checkHowManyTokensCost >= 101) {
@@ -48,7 +54,7 @@ handlerread::handlerRequestfromScheduler(readRequest readRequest) {
         judge = diskList[diskID - 1].diskRead(objUnit[j] + j);
         if (!judge) {
           // 这里是如果读失败了，就记录读成功了多少个unit到isDone
-          isDone.second = j;
+          std::get<1>(isDone) = j;
           // 如果读失败了，确实可以直接在这里直接修改obj的unitid和size用于下一个时间片接着读
           // 这里的set需要set一个vector类型的unit，对应于三个磁盘的起始unit
           for (int m{0}; m < repDisk.size(); m++) {
@@ -64,7 +70,7 @@ handlerread::handlerRequestfromScheduler(readRequest readRequest) {
         // 如果没读到（一定是j才没读到），就返回这个磁盘的id,这里的readFailureForToken是暂时还没有用的，但是也是可以的
         readFailureForToken = diskID - 1;
       } else {
-        isDone.first = true;
+        std::get<0>(isDone) = true;
         completeRequest.emplace_back(readRequest.getRequestId());
       }
       break;
@@ -75,11 +81,13 @@ handlerread::handlerRequestfromScheduler(readRequest readRequest) {
 }
 
 // 用于跨时间片读
-pair<bool, int> handlerread::handlerRequestfromScheduler(
-    readRequest readRequest, vector<int> objUnitFromOnce, int objSizeFromOnce) {
+pair<bool, int>
+handlerread::handlerRequestfromScheduler(readRequest readRequest,
+                                         vector<int> objUnitFromOnce,
+                                         int objSizeFromOnce, int objDiskId) {
   bool whoever;
   pair<bool, int> isDone;
-  isDone.first = false;
+  std::get<0>(isDone) = false;
 
   int costTokens;
   // int objUnit[REP_NUM];
@@ -97,11 +105,17 @@ pair<bool, int> handlerread::handlerRequestfromScheduler(
   // 如果当前磁头预消耗tokens小于当前磁头剩余tokens数量，一个if的行为对应读一个对象的对象块
   for (int i = 0; i < repDisk.size(); i++) {
     int diskID = repDisk[i];
+    if (objDiskId != -1) {
+      diskID = objDiskId;
+    }
+
     int checkHowManyTokensCost =
         (diskList[diskID - 1].howManyTokensCost(objUnit[0], whoever));
     if (checkHowManyTokensCost == maxToken + 1) {
       whichDiskIJumped.emplace_back(diskID - 1);
-      diskList[diskID - 1].diskRead(objUnit[0]);
+      std::get<0>(isDone) = diskList[diskID - 1].diskRead(objUnit[0]);
+      std::get<1>(isDone) = 0;
+      break;
     }
     // 这个逻辑里面不存在跳操作
     // if (checkHowManyTokensCost >= 101) {
@@ -115,7 +129,7 @@ pair<bool, int> handlerread::handlerRequestfromScheduler(
         judge = diskList[diskID - 1].diskRead(objUnit[j] + j);
         if (!judge) {
           // 这里是如果读失败了，就记录读成功了多少个unit到isDone
-          isDone.second = j;
+          std::get<1>(isDone) = j;
           // 如果读失败了，确实可以直接在这里直接修改obj的unitid和size用于下一个时间片接着读
           // 这里的set需要set一个vector类型的unit，对应于三个磁盘的起始unit
           // for (int m{0}; m < repDisk.size(); m++) {
@@ -131,7 +145,7 @@ pair<bool, int> handlerread::handlerRequestfromScheduler(
         // 如果没读到（一定是j才没读到），就返回这个磁盘的id,这里的readFailureForToken是暂时还没有用的，但是也是可以的
         readFailureForToken = diskID - 1;
       } else {
-        isDone.first = true;
+        std::get<0>(isDone) = true;
         completeRequest.emplace_back(readRequest.getRequestId());
       }
       break;

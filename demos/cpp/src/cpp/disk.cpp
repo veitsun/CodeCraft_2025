@@ -182,7 +182,7 @@ bool Disk::diskRead(int unit_id) {
   // tokenCost > curToken 表示当前时间片读不了，只能先J过去，下个时间片再r
   if (costToken > curToken && curToken == maxToken) {
     // 这个 if 暂时一定进不来
-    pointer.token = maxToken;
+    pointer.token = 0;
     // 就执行了跳的动作了
     pointer.current_position = unit_id;
     // pointer.pre_is_read = false;
@@ -260,7 +260,7 @@ bool Disk::executeJump(int unit_id) // 需要执行jump操作
     // 这样就跳不了
     return false;
   }
-  pointer.token = maxToken;
+  pointer.token = 0;
   pointer.current_position = unit_id;
   cache += std::string("j ");
   // std::cout << cache << std::endl;

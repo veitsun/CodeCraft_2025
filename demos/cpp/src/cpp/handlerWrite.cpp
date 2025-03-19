@@ -64,7 +64,8 @@ bool handlerwrite::handlerRequestfromScheduler(writeRequest writeRequest) {
     }
   }
 
-  Object obj = object_list.getObject(writeRequest.getObjectId());
+  // Object obj = object_list.getObject(writeRequest.getObjectId());
+  Object obj;
   obj.setObjectId(writeRequest.getObjectId());
   obj.setObjectSize(writeRequest.getObjectSize());
   obj.setObjectTag(writeRequest.getObjectTag());

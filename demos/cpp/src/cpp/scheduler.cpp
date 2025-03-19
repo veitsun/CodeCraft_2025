@@ -10,6 +10,7 @@
 #include <cstring>
 #include <iostream>
 #include <iterator>
+#include <string>
 #include <tuple>
 #include <vector>
 
@@ -117,73 +118,78 @@ void Scheduler::myReadScheduler() {
   readRequest doLastRead;
   vector<int> readFailUnit;
   string printCache;
-  string temp;
+  // string temp;
   int num;
   readFailUnit.resize(3);
 
   // 用于判断当前读请求是否完成
-  pair<bool, int> isdone;
+  tuple<bool, int, int> isdone3;
+  tuple<bool, int> isdone2;
   int readFailId, readFailObjSize;
   // 对之前时间片中未读完的读请求做读操作
   if (readNotDone.size()) {
 
     // readNotDone反向循环
-    //  for (auto rit = readNotDone.rbegin(); rit != readNotDone.rend();) {
-    //    // auto &element = readNotDone.back();
-
-    //   int requestId = std::get<0>(*rit);
-    //   vector<int> &requestObjUnit = std::get<1>(*rit);
-    //   int &requestObjSize = std::get<2>(*rit);
-    //   isdone = handlerRead.handlerRequestfromScheduler(
-    //       read_request_list.getreadRequestByRequestId(requestId),
-    //       requestObjUnit, requestObjSize);
-    //   if (isdone.first) {
-    //     // 获得反向迭代器的正向迭代器
-    //     auto it = rit.base();
-    //     // 反向的正向在反向的下一个所以要--来指向要删除的元素
-    //     --it;
-    //     // readNotDone.pop_back();
-    //     it = readNotDone.erase(it);
-    //     rit = std::reverse_iterator<decltype(it)>(it);
-    //   } else {
-    //     for (int n{0}; n < 3; n++) {
-    //       requestObjUnit[n] += isdone.second;
-    //       requestObjSize -= isdone.second;
-    //     }
-    //     ++rit;
-    //   }
-    // }
-
-    // readNotDone正向循环
-    for (auto it = readNotDone.begin(); it != readNotDone.end();) {
+    for (auto rit = readNotDone.rbegin(); rit != readNotDone.rend();) {
       // auto &element = readNotDone.back();
 
-      int requestId = std::get<0>(*it);
-      vector<int> &requestObjUnit = std::get<1>(*it);
-      int &requestObjSize = std::get<2>(*it);
-      isdone = handlerRead.handlerRequestfromScheduler(
+      int requestId = std::get<0>(*rit);
+      vector<int> &requestObjUnit = std::get<1>(*rit);
+      int &requestObjSize = std::get<2>(*rit);
+      int lastJumpDiskId = std::get<3>(*rit);
+      isdone2 = handlerRead.handlerRequestfromScheduler(
           read_request_list.getreadRequestByRequestId(requestId),
-          requestObjUnit, requestObjSize);
-      if (isdone.first) {
+          requestObjUnit, requestObjSize, lastJumpDiskId);
+      if (std::get<0>(isdone2)) {
+        // 获得反向迭代器的正向迭代器
+        auto it = rit.base();
+        // 反向的正向在反向的下一个所以要--来指向要删除的元素
+        --it;
         // readNotDone.pop_back();
         it = readNotDone.erase(it);
+        rit = std::reverse_iterator<decltype(it)>(it);
       } else {
         for (int n{0}; n < 3; n++) {
-          requestObjUnit[n] += isdone.second;
-          requestObjSize -= isdone.second;
+          requestObjUnit[n] += std::get<1>(isdone2);
+          requestObjSize -= std::get<1>(isdone2);
         }
-        ++it;
+        ++rit;
       }
     }
+
+    // readNotDone正向循环
+    //   for (auto it = readNotDone.begin(); it != readNotDone.end();) {
+    //     // auto &element = readNotDone.back();
+
+    //     int requestId = std::get<0>(*it);
+    //     vector<int> &requestObjUnit = std::get<1>(*it);
+    //     int &requestObjSize = std::get<2>(*it);
+    //     int lastJumpDiskId = std::get<3>(*it);
+    //     isdone2 = handlerRead.handlerRequestfromScheduler(
+    //         read_request_list.getreadRequestByRequestId(requestId),
+    //         requestObjUnit, requestObjSize, lastJumpDiskId);
+    //     if (std::get<0>(isdone2)) {
+    //       // readNotDone.pop_back();
+    //       it = readNotDone.erase(it);
+    //     } else {
+    //       for (int n{0}; n < 3; n++) {
+    //         // requestObjUnit[n] += isdone.second;
+    //         // requestObjSize -= isdone.second;
+    //         requestObjUnit[n] += std::get<1>(isdone2);
+    //         requestObjSize -= std::get<1>(isdone2);
+    //       }
+    //       ++it;
+    //     }
+    //   }
   }
   // 读了一个之后，在下一个时间片中又读这个，单磁头往前移动了，且磁头只能单向移动，此时可以选择读其他副本显然更优
   if (readRequestList.size()) {
     // 对当前时间片来的读请求做读操作
     for (int currentPos = 0; currentPos < readRequestList.size();
          currentPos++) {
-      isdone =
+      isdone3 =
           handlerRead.handlerRequestfromScheduler(readRequestList[currentPos]);
-      if (!isdone.first) {
+      if (!std::get<0>(isdone3)) {
         // 获得读失败的当前请求Id
         readFailId = readRequestList[currentPos].getRequestId();
         // 将没有读完的读请求id放入readNotDone这个list中,因为我已经在handler的时候就修改了obj的unit和size,obj不能改
@@ -193,11 +199,11 @@ void Scheduler::myReadScheduler() {
         vector<int> objUnit = obj.getObjectUnit();
         int objSize = obj.getObjectSize();
         for (int m{0}; m < 3; m++) {
-          readFailUnit[m] = objUnit[m] + isdone.second;
+          readFailUnit[m] = objUnit[m] + std::get<1>(isdone3);
         }
-        readFailObjSize = objSize - isdone.second;
-        readNotDone.emplace_back(
-            make_tuple(readFailId, readFailUnit, readFailObjSize));
+        readFailObjSize = objSize - std::get<1>(isdone3);
+        readNotDone.emplace_back(make_tuple(
+            readFailId, readFailUnit, readFailObjSize, std::get<2>(isdone3)));
       }
     }
 
@@ -216,6 +222,7 @@ void Scheduler::myReadScheduler() {
       } else {
         cout << printCache[0];
         cout << printCache[1];
+        string temp;
         for (int u{2}; u < printCache.size(); u++) {
           temp += printCache[u];
         }
@@ -242,6 +249,7 @@ void Scheduler::myReadScheduler() {
       } else {
         cout << printCache[0];
         cout << printCache[1];
+        string temp;
         for (int u{2}; u < printCache.size(); u++) {
           temp += printCache[u];
         }

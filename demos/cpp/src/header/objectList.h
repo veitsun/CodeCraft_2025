@@ -15,7 +15,7 @@ private:
   vector<Object> object_list;
 
 public:
-  objectList() { object_list.reserve(1000); }
+  objectList() { /*object_list.reserve(1000);*/ }
   void addObject(Object object);
-  Object getObject(int obj_id) {return object_list[obj_id];}
+  Object getObject(int obj_id) { return object_list[obj_id - 1]; }
 };
