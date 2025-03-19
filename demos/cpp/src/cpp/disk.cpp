@@ -46,12 +46,16 @@ void Disk::printOncetimeDiskHeadAction() {
   }
 }
 
-std::vector<DiskUnit> Disk::getDiskState() { return storage; }
-
 void Disk::diskWrite(int unit_id, int obj_id, int obj_size) {
   for (int i = unit_id; i < unit_id + obj_size; i++) {
-    storage[i].object_id = obj_id;
-    storage[i].is_used = true;
+    if (i > maxDiskSize) { // 如果大于磁盘总存储单元总数
+      int newI = realPosition(i);
+      storage[newI].object_id = obj_id;
+      storage[newI].is_used = true;
+    } else {
+      storage[i].object_id = obj_id;
+      storage[i].is_used = true;
+    }
   }
 }
 
@@ -61,14 +65,21 @@ void Disk::diskDelete(int unit_id, int obj_size) {
     // k++;
     // storage[i].is_deleted = true;
     // storage[unit_id].object_block_id = k;
-    storage[i].object_id = 0;
-    storage[i].is_used = false;
+    if (i > maxDiskSize) {
+      int newI = realPosition(i);
+      storage[newI].object_id = 0;
+      storage[newI].is_used = false;
+    } else {
+      storage[i].object_id = 0;
+      storage[i].is_used = false;
+    }
   }
 }
 
 vector<pair<int, int>> Disk::wherecanput(
     int tag_id) const // 返回所有这个tag的区间, 并且这个区间都是空闲的
 {
+  // 这里可能没有涉及到判断循环存储单元
   vector<pair<int, int>> res;
   for (int i = 1; i <= maxDiskSize; i++) { // MAX_DISK_SIZE 这个之后应该是 V
     if (storage[i].tag_id == tag_id && storage[i].is_used == false) {
@@ -83,14 +94,7 @@ vector<pair<int, int>> Disk::wherecanput(
   return res;
 }
 
-pair<int, int> Disk::getDiskHead() {
-  pair<int, int> temp;
-  temp.first = pointer.current_position;
-  temp.second = pointer.token;
-  return temp;
-}
-
-// int remainTokens() // 当前磁头剩
+// int remainTokens() // 当前磁头剩余 token
 int Disk::remainTokens() { return pointer.token; }
 
 // 返回值大于maxToken 即只能 Jump
@@ -99,10 +103,12 @@ int Disk::remainTokens() { return pointer.token; }
 int Disk::howManyTokensCost(int objUnit, bool &path) {
 
   int position = pointer.current_position;
-  int distance = objUnit - position; // 有正有负
+  // int distance = objUnit - position; // 有正有负
+  int distance = pathLen(position, objUnit);
   int p_cos;
   int r_cos = 0;
   if (distance == 0) {
+    // 如果磁头正好在要读存储单元的位置
     if (pointer.pre_is_read == false) {
       path = true;
       return 64;
@@ -117,9 +123,9 @@ int Disk::howManyTokensCost(int objUnit, bool &path) {
 
   // 可以read或者pass过去的情况
   else if (distance >= 0 && distance < maxToken) {
-    // 计算p_cos的值
+    // 计算p_cos的值，一路pass过去的消耗
     p_cos = distance + 64;
-    // 计算r_cos的值
+    // 计算r_cos的值，一路读过去的消耗
     if (pointer.pre_is_read == true) {
       int pre_token = pointer.pre_token;
       for (int i = 0; i <= distance; i++) {
@@ -152,13 +158,19 @@ int Disk::howManyTokensCost(int objUnit, bool &path) {
 
 bool Disk::diskRead(int unit_id) {
   bool path;
-  // 计算读这个unit_id的token消耗数
+  // 计算读这个unit_id的token预消耗token数量
   int costToken = howManyTokensCost(unit_id, path);
   int curToken = pointer.token;
-  if (curToken < costToken)
+  if (curToken < costToken) {
+    if (costToken == maxToken + 1 && curToken == maxToken) {
+      executeJump(unit_id); // 执行跳
+    }
     return false;
+  }
+
   // tokenCost > curToken 表示当前时间片读不了，只能先J过去，下个时间片再r
   if (costToken > curToken && curToken == maxToken) {
+    // 这个 if 暂时一定进不来
     pointer.token = maxToken;
     // 就执行了跳的动作了
     pointer.current_position = unit_id;
@@ -172,12 +184,14 @@ bool Disk::diskRead(int unit_id) {
     // 当前时间片可以读
     // path: 1: read过去, 0: pass过去
     if (path) {
-      for (int d = 0; d <= (unit_id - pointer.current_position); d++) {
+      pathLen(pointer.current_position, unit_id);
+      for (int d = 0; d <= pathLen(pointer.current_position, unit_id); d++) {
         // printf("r");
         if (pointer.pre_is_read == false) {
           // pointer.pre_token = 64;
           if (pointer.token - 64 < 0) {
-            pointer.current_position = pointer.current_position + d;
+            pointer.current_position =
+                realPosition(pointer.current_position + d);
             return false;
           }
           pointer.token -= 64;
@@ -185,7 +199,8 @@ bool Disk::diskRead(int unit_id) {
           pointer.pre_token = 64;
         } else {
           if (pointer.token - max(ceil(pointer.pre_token * 0.8), 16) < 0) {
-            pointer.current_position = pointer.current_position + d;
+            pointer.current_position =
+                realPosition(pointer.current_position + d);
             return false;
           }
           pointer.token -= max(ceil(pointer.pre_token * 0.8), 16);
@@ -195,10 +210,12 @@ bool Disk::diskRead(int unit_id) {
         cache += "r";
       }
     } else {
-      for (int d = 0; d <= (unit_id - pointer.current_position - 1); d++) {
+      pathLen(pointer.current_position, unit_id);
+      for (int d = 0; d <= (pathLen(pointer.current_position, unit_id) - 1);
+           d++) {
         // printf("p");
         if (pointer.token - 1 < 0) {
-          pointer.current_position = pointer.current_position + d;
+          pointer.current_position = realPosition(pointer.current_position + d);
           return false;
         }
         cache += "p";
@@ -208,7 +225,8 @@ bool Disk::diskRead(int unit_id) {
         // pointer.
       }
       if (pointer.token - 64 < 0) {
-        pointer.current_position = pointer.current_position + unit_id;
+        pointer.current_position =
+            realPosition(pointer.current_position + unit_id);
         return false;
       }
       pointer.token -= 64;
@@ -218,7 +236,7 @@ bool Disk::diskRead(int unit_id) {
       cache += "r";
     }
     // pointer.token -= costToken;
-    pointer.current_position = unit_id + 1;
+    pointer.current_position = realPosition(unit_id + 1);
     return true;
   }
 }
@@ -228,17 +246,26 @@ bool Disk::executeJump(int unit_id) // 需要执行jump操作
   // curerpointer.token
   int current_token = pointer.token;
   if (current_token < maxToken) {
+    // 这样就跳不了
     return false;
   }
+  pointer.token = maxToken;
   pointer.current_position = unit_id;
+  cache += "j " + std::to_string(unit_id);
   pointer.pre_is_read = false;
   pointer.pre_token = maxToken;
-  pointer.token = maxToken;
   return true;
 }
 
-int Disk::pathLen(int current_pos, int unit_id) // 这个还没所有实现
-{
+int Disk::realPosition(int unit_relative_id) {
+  if (unit_relative_id <= maxDiskSize) {
+    return unit_relative_id;
+  } else {
+    return unit_relative_id % maxDiskSize;
+  }
+}
+
+int Disk::pathLen(int current_pos, int unit_id) {
   if (unit_id >= current_pos) {
     return unit_id - current_pos;
   } else {
@@ -260,6 +287,15 @@ NewDisk::NewDisk(vector<int> tagVector) {
 }
 
 // int main()
+
+// std::vector<DiskUnit> Disk::getDiskState() { return storage; }
+
+// pair<int, int> Disk::getDiskHead() {
+//   pair<int, int> temp;
+//   temp.first = pointer.current_position;
+//   temp.second = pointer.token;
+//   return temp;
+// }
 
 // void Disk::diskRead(int action, int unit_id) {
 //   if (action == 1) {

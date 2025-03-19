@@ -41,14 +41,9 @@ public:
   // 最新版本是我不需要提供磁盘块号，我只是单个磁盘的抽象
   void printOncetimeDiskHeadAction();
 
-  std::vector<DiskUnit> getDiskState(); // 返回磁盘块的磁盘单元数组
-
   void diskWrite(int unit_id, int obj_id, int obj_size); // 写功能
 
   void diskDelete(int unit_id, int obj_size); // 删除功能
-
-  vector<pair<int, int>>
-  getStorageUnitIntervalByTag(int tag_id) const; // 返回所有这个tag的区间
 
   vector<pair<int, int>> wherecanput(
       int tag_id) const; // 返回所有这个tag的区间, 并且这个区间都是空闲的
@@ -56,17 +51,21 @@ public:
   // tuple<int tag_id, int start, int end
   vector<tuple<int, int, int>> getTagInterval(int tag) const;
 
-  pair<int, int> getDiskHead();
-
   int remainTokens();                             // 当前磁头剩余token数
   int howManyTokensCost(int objUnit, bool &path); // 预消耗token数
 
   bool diskRead(int unit_id); // 读单个对象块,执行具体的读动作,读取成功返回 true
 
-  int pathLen(int current_pos, int unit_id); // 这个还没所有实现
+  int pathLen(int current_pos, int unit_id); // 判断长度
 
   bool executeJump(int unit_id); // 需要执行jump操作,这是具体的执行动作
 
+  int realPosition(int unit_relative_id); // 因为是循环的存储单元队列
+
+  // std::vector<DiskUnit> getDiskState(); // 返回磁盘块的磁盘单元数组
+  // vector<pair<int, int>>
+  // getStorageUnitIntervalByTag(int tag_id) const; // 返回所有这个tag的区间
+  // pair<int, int> getDiskHead();
   // DiskUnit getStorageUnit(
   //     int Unitindex) const; // 传入存储单元编号，返回磁盘单元中的数据对象
   // void setStorageUnit(
