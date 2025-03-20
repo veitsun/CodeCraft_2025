@@ -26,7 +26,7 @@ private:
   // void reset(); // 这个暂且没有用
   int max(int a, int b) { return a > b ? a : b; }
   int min(int a, int b) { return a < b ? a : b; }
-  void setTagDistribute();
+  void setTagDistribute(); // 这个已经升级到 v2 版本
 
   string cache{};
   // vector<char> cache;
@@ -39,6 +39,7 @@ public:
   void setTagDistribute_v2();
   void diskPrintCacheClear();
   void diskDiskHeadInit();
+  int getHeadPosition() const { return pointer.current_position; }
 
   // 最新版本是我不需要提供磁盘块号，我只是单个磁盘的抽象
   string getOncetimeDiskHeadAction();

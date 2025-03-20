@@ -8,7 +8,7 @@
 #include <vector>
 
 handlerwrite handlerwrite;
-
+int handlerwrite::static_read_diskid = 0;
 /*
 ---------------------------BUG todo---------------------------
 ********若选手无法选出三块有足够空间的硬盘存放该对象则选手程序直接判********
@@ -17,7 +17,7 @@ handlerwrite handlerwrite;
  */
 bool handlerwrite::handlerRequestfromScheduler(writeRequest writeRequest) {
   bool isDone = false;
-  int diskUnique = 0; // 控制每个rep写到不同磁盘
+  // int diskUnique = 0; // 控制每个rep写到不同磁盘
   vector<pair<int, int>> section;
   vector<int> diskNum;
   vector<int> unit;
@@ -30,7 +30,12 @@ bool handlerwrite::handlerRequestfromScheduler(writeRequest writeRequest) {
     // printf("副本 %d 写入\n", rep);
     // fflush(stdout);
     flag = 0;
-    for (int i{diskUnique}; i < maxDisk; i++) {
+    for (int i_rep{static_read_diskid}; i_rep < static_read_diskid + maxDisk;
+         i_rep++) {
+      int i = i_rep;
+      if (i_rep >= maxDisk) {
+        i = i_rep % maxDisk;
+      }
       if (flag >= 1)
         break;
       section = diskList[i].wherecanput(writeRequest.getObjectTag());
@@ -47,7 +52,7 @@ bool handlerwrite::handlerRequestfromScheduler(writeRequest writeRequest) {
           unit[rep] = section[j].first;
           flag++;
           // diskUnique++;
-          diskUnique = i + 1;
+          static_read_diskid = i + 1;
           isDone = true;
           completeObjId = writeRequest.getObjectId();
           completeRep[rep] = i + 1;

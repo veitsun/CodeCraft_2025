@@ -119,6 +119,13 @@ vector<pair<int, int>> Disk::wherecanput(
       res.push_back(make_pair(start, i - 1));
     }
   }
+  // 按照区间长度 从大到小 排序
+  // sort(res.begin(), res.end(),
+  //      [](const pair<int, int> &a, const pair<int, int> &b) {
+  //        int length_a = a.second - a.first + 1; // 区间长度
+  //        int length_b = b.second - b.first + 1; // 区间长度
+  //        return length_a > length_b;            // 从大到小排序
+  //      });
   return res;
 }
 
