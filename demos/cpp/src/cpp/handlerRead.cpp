@@ -116,7 +116,7 @@ handlerread::handlerRequestfromScheduler(readRequest readRequest,
         diskList[diskID - 1].remainTokens()) {
       // 可以读,如何判断读了多少个并且记录到isDone中
       for (int j{0}; j < objSize; j++) {
-        judge = diskList[diskID - 1].diskRead(objUnit[j] + j);
+        judge = diskList[diskID - 1].diskRead(objUnit[0] + j);
         if (!judge) {
           // 这里是如果读失败了，就记录读成功了多少个unit到isDone
           std::get<1>(isDone) = j;
