@@ -23,8 +23,6 @@ handlerread::handlerRequestfromScheduler(readRequest readRequest) {
 
   // bool judge = true;
   bool judge = false;
-  vector<int> setObjUnit;
-  setObjUnit.resize(3);
   // 我现在每一个副本写的位置都是一样的，每个副本写在不同的磁盘，每个副本在各自磁盘的位置相同，所以我现在读，只需要读一个副本即可，虽然他这里给的unit是三个副本的数据，但是每个副本的数据都是一样的，所以我用第一个就ok了
   // 遍历这个对象的对象块
   // 如果当前磁头预消耗tokens小于当前磁头剩余tokens数量，一个if的行为对应读一个对象的对象块
@@ -55,14 +53,8 @@ handlerread::handlerRequestfromScheduler(readRequest readRequest) {
         if (!judge) {
           // 这里是如果读失败了，就记录读成功了多少个unit到isDone
           std::get<1>(isDone) = j;
+          std::get<2>(isDone) = diskID;
           // 如果读失败了，确实可以直接在这里直接修改obj的unitid和size用于下一个时间片接着读
-          // 这里的set需要set一个vector类型的unit，对应于三个磁盘的起始unit
-          for (int m{0}; m < repDisk.size(); m++) {
-            setObjUnit[m] = objUnit[m] + j;
-          }
-          // 这里不能直接修改obj，因为如果同时有其他请求要读这个对象的话，那么其他请求就永远读不成功了
-          //  obj.setObjectUnit(setObjUnit);
-          //  obj.setObjectSize(objSize - j);
           break;
         }
       }
@@ -80,7 +72,7 @@ handlerread::handlerRequestfromScheduler(readRequest readRequest) {
   return isDone;
 }
 
-// 用于跨时间片读
+// 用于跨时间片读，第二次读，第二次读是不可能读失败的
 pair<bool, int>
 handlerread::handlerRequestfromScheduler(readRequest readRequest,
                                          vector<int> objUnitFromOnce,
@@ -98,8 +90,6 @@ handlerread::handlerRequestfromScheduler(readRequest readRequest,
 
   // bool judge = true;
   bool judge = false;
-  vector<int> setObjUnit;
-  setObjUnit.resize(3);
   // 我现在每一个副本写的位置都是一样的，每个副本写在不同的磁盘，每个副本在各自磁盘的位置相同，所以我现在读，只需要读一个副本即可，虽然他这里给的unit是三个副本的数据，但是每个副本的数据都是一样的，所以我用第一个就ok了
   // 遍历这个对象的对象块
   // 如果当前磁头预消耗tokens小于当前磁头剩余tokens数量，一个if的行为对应读一个对象的对象块
@@ -131,13 +121,6 @@ handlerread::handlerRequestfromScheduler(readRequest readRequest,
           // 这里是如果读失败了，就记录读成功了多少个unit到isDone
           std::get<1>(isDone) = j;
           // 如果读失败了，确实可以直接在这里直接修改obj的unitid和size用于下一个时间片接着读
-          // 这里的set需要set一个vector类型的unit，对应于三个磁盘的起始unit
-          // for (int m{0}; m < repDisk.size(); m++) {
-          //   setObjUnit[m] = objUnit[m] + j;
-          // }
-          // 这里不能直接修改obj，因为如果同时有其他请求要读这个对象的话，那么其他请求就永远读不成功了
-          //  obj.setObjectUnit(setObjUnit);
-          //  obj.setObjectSize(objSize - j);
           break;
         }
       }
