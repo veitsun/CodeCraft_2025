@@ -5,6 +5,7 @@
 
 #include <cstdio>
 #include <iostream>
+#include <tuple>
 
 using namespace std;
 
@@ -23,6 +24,11 @@ vector<TagDistributeInDisk> tagDistributeInAllDisk;
 // tagRepID[0] = <1, 2, 3> 代表 tag0 在 1, 2, 3 磁盘上的备份
 // tagRepID[1] = <5, 6, 7> 代表 tag1 在 5, 6, 7 磁盘上的备份
 vector<vector<int>> tagRepID;
+
+/*
+  Tag：从 0 开始
+  Disk：从 1 开始
+*/
 
 // 读取预处理数据
 void PreProcess::acceptInput() {
@@ -44,31 +50,33 @@ void PreProcess::acceptInput() {
       }
     }
   }
-  // diskList.resize(maxDisk); //
-  printf("OK\n");
-  fflush(stdout);
-
   return;
 }
 
 void PreProcess::calculateTagSpace() {
   int maxBigTime = (maxTime - 1) / FRE_PER_SLICING;
-  // 计算每种tag最大需要的空间
+  // 存储每种tag最大需要的空间
   vector<int> rawMaxSpaceForTag;
   rawMaxSpaceForTag.resize(maxTag);
-
   int maxSpaceForAllTag = 0;
+
   for (int tag = 0; tag < maxTag; tag++) {
-    rawMaxSpaceForTag[tag] = actionOnBlockCount[WRITE][tag][0];
+    maxSpaceForTag[tag] = 0;
+    int tempSpaceNeed =
+        actionOnBlockCount[WRITE][tag][0] - actionOnBlockCount[DELETE][tag][0];
     for (int bigTime = 1; bigTime <= maxBigTime; bigTime++) {
-      rawMaxSpaceForTag[tag] += actionOnBlockCount[WRITE][tag][bigTime] -
-                                actionOnBlockCount[DELETE][tag][bigTime - 1];
+      tempSpaceNeed += actionOnBlockCount[WRITE][tag][bigTime] -
+                       actionOnBlockCount[DELETE][tag][bigTime];
+      if (rawMaxSpaceForTag[tag] < tempSpaceNeed) {
+        rawMaxSpaceForTag[tag] = tempSpaceNeed;
+      }
     }
     maxSpaceForAllTag += rawMaxSpaceForTag[tag];
   }
 
   // 伸缩空间需求
-  double fixRadio = maxDisk * maxDiskSize / maxSpaceForAllTag * REP_NUM;
+  double fixRadio =
+      (maxDisk * maxDiskSize * 1.0) / (maxSpaceForAllTag * REP_NUM);
   if (fixRadio < 1) {
     for (int tag = 0; tag < maxTag; tag++) {
       maxSpaceForTag[tag] = fixRadio * rawMaxSpaceForTag[tag];
@@ -77,66 +85,21 @@ void PreProcess::calculateTagSpace() {
   return;
 }
 
-void allockDiskGroupSpaceForTag(vector<int> &diskUsedSpace,
-                                vector<bool> &haveDistributeTag) {
+void PreProcess::allockDiskGroupSpaceForTag() {
+  vector<int> TagsSpaceNeedInDisk;
+  TagsSpaceNeedInDisk.resize(maxTag);
+  int spaceUsed = 0;
   for (int tag = 0; tag < maxTag; tag++) {
-    // 寻找合适的一组连续的磁盘
-    for (int currentDiskGroup = 1; currentDiskGroup * REP_NUM <= maxDisk;
-         currentDiskGroup++) {
-      int tempDiskUsedSpace =
-          diskUsedSpace[currentDiskGroup] + maxSpaceForTag[tag];
-
-      if (tempDiskUsedSpace <= maxDiskSize) {
-        // tagDistribute 就是一个tag的范围
-        TagDistribute tagDistribute = make_tuple(
-            tag, tempDiskUsedSpace - maxSpaceForTag[tag], tempDiskUsedSpace);
-
-        haveDistributeTag[tag] = true;
-
-        int maxDupDiskID = currentDiskGroup * REP_NUM; // 3个备份磁盘 最大磁盘号
-        for (int dupNum = 0; dupNum < REP_NUM; dupNum++) {
-          tagRepID[tag].push_back(maxDupDiskID);
-          diskUsedSpace[maxDupDiskID] = tempDiskUsedSpace;
-          tagDistributeInAllDisk[maxDupDiskID].push_back(tagDistribute);
-          maxDupDiskID--;
-        }
-      } else {
-        // 磁盘空间不足
-        currentDiskGroup++;
-      }
+    TagsSpaceNeedInDisk[tag] = maxSpaceForTag[tag] / maxDisk * REP_NUM;
+    spaceUsed += TagsSpaceNeedInDisk[tag];
+    TagDistribute tagDistribute =
+        make_tuple(tag, spaceUsed - TagsSpaceNeedInDisk[tag], spaceUsed);
+    for (int diskID = 1; diskID <= maxDisk; diskID++) {
+      tagDistributeInAllDisk[diskID].push_back(tagDistribute);
     }
   }
-}
 
-void allockDiskSpaceForTag(vector<int> &diskUsedSpace,
-                           vector<bool> &haveDistributeTag) {
-  // 一个tag存放的磁盘编号
-  vector<int> allRepDiskID;
-  for (int tag = 0; tag < maxTag; tag++) {
-    // 还没有分配的tag
-    if (!haveDistributeTag[tag]) {
-      allRepDiskID.clear();
-      int rep_num = 0;
-      for (int diskID = maxDisk; diskID >= 1; diskID--) {
-        int tempDiskUsedSpace = diskUsedSpace[diskID] + maxSpaceForTag[tag];
-        if (tempDiskUsedSpace <= maxDiskSize) {
-          allRepDiskID.push_back(diskID);
-          rep_num++;
-        }
-        // 找到3个备份磁盘
-        if (rep_num == REP_NUM) {
-          for (int repCount = 0; repCount < REP_NUM; repCount++) {
-            TagDistribute tagDistribute =
-                make_tuple(tag, tempDiskUsedSpace - maxSpaceForTag[tag],
-                           tempDiskUsedSpace);
-            diskUsedSpace[allRepDiskID[repCount]] = tempDiskUsedSpace;
-            tagDistributeInAllDisk[diskID].push_back(tagDistribute);
-          }
-          haveDistributeTag[tag] = true;
-        }
-      }
-    }
-  }
+  return;
 }
 
 // --------------------public--------------------
@@ -144,35 +107,12 @@ void allockDiskSpaceForTag(vector<int> &diskUsedSpace,
 int PreProcess::run() {
   // 读取输入
   acceptInput();
-  return 0;
+
   // 计算tag所需空间
   calculateTagSpace();
 
-  // diskUsedSpace 记录磁盘已分配空间
-  vector<int> diskUsedSpace;
-  diskUsedSpace.resize(maxDisk + 1);
-  for (int diskId = 1; diskId <= maxDisk; diskId++) {
-    diskUsedSpace[diskId] = 0;
-  }
-
-  // haveDistributeTag记录tag是否已分配到磁盘
-  vector<bool> haveDistributeTag;
-  haveDistributeTag.resize(maxTag);
-
   // 依次为tag分配一组磁盘
-  void allockDiskGroupSpaceForTag(vector<int> & diskUsedSpace,
-                                  vector<bool> & haveDistributeTag);
-
-  // 对于没有分配的tag，寻找不连续的磁盘存放
-  // int lastDiskID = maxDisk % REP_NUM;
-  void allockDiskSpaceForTag(vector<int> & diskUsedSpace,
-                             vector<bool> & haveDistributeTag);
-
-  // for (int tag = 0; tag < maxTag; tag++) {
-  //   if (!haveDistributeTag[tag]) {
-  //     cout << "tag " << tag << "没有分配" << endl;
-  //   }
-  // }
+  allockDiskGroupSpaceForTag();
 
   printf("OK\n");
   fflush(stdout);

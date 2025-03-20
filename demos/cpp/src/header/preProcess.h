@@ -25,10 +25,9 @@ class PreProcess {
 private:
   void acceptInput();
   void calculateTagSpace();
-  void allockDiskGroupSpaceForTag(vector<int> &diskUsedSpace,
-                                  vector<bool> &haveDistributeTag);
-  void allockDiskSpaceForTag(vector<int> &diskUsedSpace,
-                             vector<bool> &haveDistributeTag);
+  void allockDiskGroupSpaceForTag();
+  // void allockDiskSpaceForTag(vector<int> &diskUsedSpace,
+  //                            vector<bool> &haveDistributeTag);
 
 public:
   PreProcess() {};
