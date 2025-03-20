@@ -12,6 +12,10 @@ int main() {
   // 预处理
   PreProcess preProcess;
   preProcess.run();
+  diskList.resize(maxDisk);
+  for (int i = 0; i < diskList.size(); i++) {
+    diskList[i].setTagDistribute_v2();
+  }
 
   // 请求接收器和三种请求队列
   requestReceiver request_receiver;

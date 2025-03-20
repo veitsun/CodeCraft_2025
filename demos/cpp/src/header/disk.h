@@ -27,6 +27,7 @@ private:
   int max(int a, int b) { return a > b ? a : b; }
   int min(int a, int b) { return a < b ? a : b; }
   void setTagDistribute();
+
   string cache{};
   // vector<char> cache;
 
@@ -35,6 +36,7 @@ public:
   ~Disk() {}
 
   // void addObjectInDisk();
+  void setTagDistribute_v2();
   void diskPrintCacheClear();
   void diskDiskHeadInit();
 

@@ -9,13 +9,14 @@
 #include <iostream>
 #include <new>
 #include <string>
+#include <tuple>
 // #include <math.h>
 
 using namespace std;
 
 Disk::Disk() {
   storage.resize(maxDiskSize + 1);
-  setTagDistribute();
+  // setTagDistribute(); 这个set tag 信息不在构造函数中搞了
 }
 
 // void Disk::reset() { storage.clear(); }
@@ -34,6 +35,28 @@ void Disk::setTagDistribute() {
     storage[last_flag].tag_id = maxTag;
   }
   // printf("磁盘的tag区间已经划分\n");
+}
+
+void Disk::setTagDistribute_v2() {
+  vector<tuple<int, int, int>> diskTagInterval = tagDistributeInAllDisk[1];
+  // 根据预处理的数据，分配每个 tag 所占用的空间
+  // 每个 tag 都有一段固定的区间
+  // int tagNum = tagDistributeInAllDisk.size();
+  int tagNum = diskTagInterval.size();
+  for (int i = 0; i < tagNum; i++) {
+    // 它这里的 tag 是从 0 开始的,要加个1
+    // 它的存储单元编号也是从 0 开始的
+    int tag_id = get<0>(diskTagInterval[i]) + 1;
+    int start = get<1>(diskTagInterval[i]) + 1;
+    int end = get<2>(diskTagInterval[i]) + 1;
+    for (int j = start; j < end; j++) {
+      storage[j].tag_id = tag_id;
+    }
+  }
+  int end = get<2>(diskTagInterval[tagNum - 1]) + 1;
+  for (; end <= maxDiskSize; end++) {
+    storage[end].tag_id = maxTag;
+  }
 }
 
 void Disk::diskPrintCacheClear() { cache.clear(); }
@@ -326,7 +349,8 @@ NewDisk::NewDisk(vector<int> tagVector) {
 // }
 
 // vector<pair<int, int>>
-// Disk::getStorageUnitIntervalByTag(int tag_id) const // 返回所有这个tag的区间
+// Disk::getStorageUnitIntervalByTag(int tag_id) const //
+// 返回所有这个tag的区间
 // {
 //   vector<pair<int, int>> res;
 //   for (int i = 0; i < maxDiskSize; i++) { // MAX_DISK_SIZE 这个之后应该是 V
@@ -379,8 +403,8 @@ NewDisk::NewDisk(vector<int> tagVector) {
 //     } else if (pointer.read_nums != 0) {
 //       if (pointer.pre_is_read == false) {
 //         // 如果说上一次不是读
-//         pointer.token -= 64; // 如果不够减的话,需要如何操作,读的时候必然够减
-//         printf("r");
+//         pointer.token -= 64; //
+//         如果不够减的话,需要如何操作,读的时候必然够减 printf("r");
 //         pointer.pre_token = 64;
 //         // pointer
 //       } else if (pointer.pre_is_read == true) {

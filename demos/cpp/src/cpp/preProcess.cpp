@@ -3,6 +3,8 @@
 #include "globalDefines.h"
 #include "globalValue.h"
 
+#include <algorithm>
+#include <cmath>
 #include <cstdio>
 #include <iostream>
 #include <tuple>
@@ -21,9 +23,6 @@ vector<vector<vector<int>>> actionOnBlockCount;
 vector<int> maxSpaceForTag;
 // ! tagDistributeInAllDisk[1] 才是第一个磁盘
 vector<TagDistributeInDisk> tagDistributeInAllDisk;
-// tagRepID[0] = <1, 2, 3> 代表 tag0 在 1, 2, 3 磁盘上的备份
-// tagRepID[1] = <5, 6, 7> 代表 tag1 在 5, 6, 7 磁盘上的备份
-vector<vector<int>> tagRepID;
 
 /*
   Tag：从 0 开始
@@ -38,8 +37,7 @@ void PreProcess::acceptInput() {
   tagDistributeInAllDisk.resize(maxDisk + 1);
   actionOnBlockCount.resize(ACITON_TYPE_COUNT);
   maxSpaceForTag.resize(maxTag);
-  tagRepID.resize(maxTag);
-  diskList.resize(maxDisk);
+  // diskList.resize(maxDisk);
 
   for (int action = 0; action < ACITON_TYPE_COUNT; action++) {
     actionOnBlockCount[action].resize(maxTag);
@@ -55,18 +53,17 @@ void PreProcess::acceptInput() {
 
 void PreProcess::calculateTagSpace() {
   int maxBigTime = (maxTime - 1) / FRE_PER_SLICING;
-  // 存储每种tag最大需要的空间
   vector<int> rawMaxSpaceForTag;
   rawMaxSpaceForTag.resize(maxTag);
   int maxSpaceForAllTag = 0;
 
+  // 存储每种tag最大需要的空间
   for (int tag = 0; tag < maxTag; tag++) {
-    maxSpaceForTag[tag] = 0;
-    int tempSpaceNeed =
-        actionOnBlockCount[WRITE][tag][0] - actionOnBlockCount[DELETE][tag][0];
+    int tempSpaceNeed = actionOnBlockCount[WRITE][tag][0];
+    rawMaxSpaceForTag[tag] = tempSpaceNeed;
     for (int bigTime = 1; bigTime <= maxBigTime; bigTime++) {
       tempSpaceNeed += actionOnBlockCount[WRITE][tag][bigTime] -
-                       actionOnBlockCount[DELETE][tag][bigTime];
+                       actionOnBlockCount[DELETE][tag][bigTime - 1];
       if (rawMaxSpaceForTag[tag] < tempSpaceNeed) {
         rawMaxSpaceForTag[tag] = tempSpaceNeed;
       }
@@ -77,10 +74,12 @@ void PreProcess::calculateTagSpace() {
   // 伸缩空间需求
   double fixRadio =
       (maxDisk * maxDiskSize * 1.0) / (maxSpaceForAllTag * REP_NUM);
-  if (fixRadio < 1) {
-    for (int tag = 0; tag < maxTag; tag++) {
-      maxSpaceForTag[tag] = fixRadio * rawMaxSpaceForTag[tag];
-    }
+  if (fixRadio > 1) {
+    fixRadio = 1;
+  }
+  for (int tag = 0; tag < maxTag; tag++) {
+    // maxSpaceForTag[tag] = 0;
+    maxSpaceForTag[tag] = fixRadio * rawMaxSpaceForTag[tag];
   }
   return;
 }
@@ -90,8 +89,10 @@ void PreProcess::allockDiskGroupSpaceForTag() {
   TagsSpaceNeedInDisk.resize(maxTag);
   int spaceUsed = 0;
   for (int tag = 0; tag < maxTag; tag++) {
-    TagsSpaceNeedInDisk[tag] = maxSpaceForTag[tag] / maxDisk * REP_NUM;
+    TagsSpaceNeedInDisk[tag] =
+        ceil(maxSpaceForTag[tag] * REP_NUM * 1.0 / maxDisk);
     spaceUsed += TagsSpaceNeedInDisk[tag];
+    spaceUsed = min(spaceUsed, maxDiskSize);
     TagDistribute tagDistribute =
         make_tuple(tag, spaceUsed - TagsSpaceNeedInDisk[tag], spaceUsed);
     for (int diskID = 1; diskID <= maxDisk; diskID++) {

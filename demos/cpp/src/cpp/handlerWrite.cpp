@@ -38,7 +38,7 @@ bool handlerwrite::handlerRequestfromScheduler(writeRequest writeRequest) {
       for (int j{0}; j < section.size(); j++) {
         // printf("%d+++++%d\n", section[j].second - section[j].first,
         //        writeRequest.getObjectSize());
-        if ((section[j].second - section[j].first) >=
+        if ((section[j].second - section[j].first + 1) >=
             writeRequest.getObjectSize()) {
           // 这里的判断是如果能放下的话就调用handler来放，但是现在V1，感觉这里可以直接调用disk
           diskList[i].diskWrite(section[j].first, writeRequest.getObjectId(),
