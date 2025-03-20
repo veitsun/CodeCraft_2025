@@ -26,15 +26,15 @@ handlerread::handlerRequestfromScheduler(readRequest readRequest) {
   // 我现在每一个副本写的位置都是一样的，每个副本写在不同的磁盘，每个副本在各自磁盘的位置相同，所以我现在读，只需要读一个副本即可，虽然他这里给的unit是三个副本的数据，但是每个副本的数据都是一样的，所以我用第一个就ok了
   // 遍历这个对象的对象块
   // 如果当前磁头预消耗tokens小于当前磁头剩余tokens数量，一个if的行为对应读一个对象的对象块
-  for (int i = 0; i < repDisk.size(); i++) {
+  for (int i = 0; i < REP_NUM; i++) {
     int diskID = repDisk[i];
     int checkHowManyTokensCost =
-        (diskList[diskID - 1].howManyTokensCost(objUnit[0], whoever));
+        (diskList[diskID - 1].howManyTokensCost(objUnit[i], whoever));
     // 跳逻辑
     if (checkHowManyTokensCost == maxToken + 1) {
       whichDiskIJumped.emplace_back(diskID - 1);
       // 跳本来应该返回false
-      std::get<0>(isDone) = diskList[diskID - 1].diskRead(objUnit[0]);
+      std::get<0>(isDone) = diskList[diskID - 1].diskRead(objUnit[i]);
       // 如果跳了，就说明一个obj的unit都没读到
       std::get<1>(isDone) = 0;
       std::get<2>(isDone) = diskID;
@@ -45,11 +45,11 @@ handlerread::handlerRequestfromScheduler(readRequest readRequest) {
     //   readFailureForJump = diskID - 1;
     // }
     int checkRemainTokens = diskList[diskID - 1].remainTokens();
-    if ((diskList[diskID - 1].howManyTokensCost(objUnit[0], whoever)) <
+    if ((diskList[diskID - 1].howManyTokensCost(objUnit[i], whoever)) <
         diskList[diskID - 1].remainTokens()) {
       // 可以读,如何判断读了多少个并且记录到isDone中
       for (int j{0}; j < objSize; j++) {
-        judge = diskList[diskID - 1].diskRead(objUnit[j] + j);
+        judge = diskList[diskID - 1].diskRead(objUnit[i] + j);
         if (!judge) {
           // 这里是如果读失败了，就记录读成功了多少个unit到isDone
           std::get<1>(isDone) = j;
@@ -72,7 +72,7 @@ handlerread::handlerRequestfromScheduler(readRequest readRequest) {
   return isDone;
 }
 
-// 用于跨时间片读，第二次读，第二次读是不可能读失败的
+// 先只看跳和没读完，先不看完全没读
 pair<bool, int>
 handlerread::handlerRequestfromScheduler(readRequest readRequest,
                                          vector<int> objUnitFromOnce,
@@ -93,17 +93,17 @@ handlerread::handlerRequestfromScheduler(readRequest readRequest,
   // 我现在每一个副本写的位置都是一样的，每个副本写在不同的磁盘，每个副本在各自磁盘的位置相同，所以我现在读，只需要读一个副本即可，虽然他这里给的unit是三个副本的数据，但是每个副本的数据都是一样的，所以我用第一个就ok了
   // 遍历这个对象的对象块
   // 如果当前磁头预消耗tokens小于当前磁头剩余tokens数量，一个if的行为对应读一个对象的对象块
-  for (int i = 0; i < repDisk.size(); i++) {
+  for (int i = 0; i < REP_NUM; i++) {
     int diskID = repDisk[i];
     if (objDiskId != -1) {
       diskID = objDiskId;
     }
 
     int checkHowManyTokensCost =
-        (diskList[diskID - 1].howManyTokensCost(objUnit[0], whoever));
+        (diskList[diskID - 1].howManyTokensCost(objUnit[i], whoever));
     if (checkHowManyTokensCost == maxToken + 1) {
       whichDiskIJumped.emplace_back(diskID - 1);
-      std::get<0>(isDone) = diskList[diskID - 1].diskRead(objUnit[0]);
+      std::get<0>(isDone) = diskList[diskID - 1].diskRead(objUnit[i]);
       std::get<1>(isDone) = 0;
       break;
     }
@@ -112,11 +112,11 @@ handlerread::handlerRequestfromScheduler(readRequest readRequest,
     //   readFailureForJump = diskID - 1;
     // }
     int checkRemainTokens = diskList[diskID - 1].remainTokens();
-    if ((diskList[diskID - 1].howManyTokensCost(objUnit[0], whoever)) <
+    if ((diskList[diskID - 1].howManyTokensCost(objUnit[i], whoever)) <
         diskList[diskID - 1].remainTokens()) {
       // 可以读,如何判断读了多少个并且记录到isDone中
       for (int j{0}; j < objSize; j++) {
-        judge = diskList[diskID - 1].diskRead(objUnit[0] + j);
+        judge = diskList[diskID - 1].diskRead(objUnit[i] + j);
         if (!judge) {
           // 这里是如果读失败了，就记录读成功了多少个unit到isDone
           std::get<1>(isDone) = j;

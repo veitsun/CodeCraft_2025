@@ -149,7 +149,7 @@ void Scheduler::myReadScheduler() {
         it = readNotDone.erase(it);
         rit = std::reverse_iterator<decltype(it)>(it);
       } else {
-        for (int n{0}; n < 3; n++) {
+        for (int n{0}; n < REP_NUM; n++) {
           requestObjUnit[n] += std::get<1>(isdone2);
           requestObjSize -= std::get<1>(isdone2);
         }
@@ -198,9 +198,10 @@ void Scheduler::myReadScheduler() {
             object_list.getObject(readRequestList[currentPos].getObjectId());
         vector<int> objUnit = obj.getObjectUnit();
         int objSize = obj.getObjectSize();
-        for (int m{0}; m < 3; m++) {
+        for (int m{0}; m < REP_NUM; m++) {
           readFailUnit[m] = objUnit[m] + std::get<1>(isdone3);
         }
+        // readFailUnit[m] = objUnit[m] + std::get<1>(isdone3);
         readFailObjSize = objSize - std::get<1>(isdone3);
         readNotDone.emplace_back(make_tuple(
             readFailId, readFailUnit, readFailObjSize, std::get<2>(isdone3)));
