@@ -202,7 +202,7 @@ bool Disk::diskRead(int unit_id) {
   // 计算读这个unit_id的token预消耗token数量
   int costToken = howManyTokensCost(unit_id, path);
   int curToken = pointer.token;
-  if (curToken < costToken) {
+  if (costToken > curToken) {
     if (costToken == maxToken + 1 && curToken == maxToken) {
       executeJump(unit_id); // 执行跳
     }

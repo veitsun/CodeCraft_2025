@@ -20,43 +20,6 @@ handlerread handlerRead;
 
 vector<Disk> diskList;
 
-void Scheduler::myScheduler() {
-
-  // V1版本删操作，将具体功能实现解耦到handler，scheduler只做指令的调度选择和分发
-  vector<delRequest> delRequestList = del_request_list.getdelRequest();
-  delRequest delRequest;
-  if (delRequestList.size()) {
-    for (int currentPos = 0; currentPos < delRequestList.size(); currentPos++) {
-      handleDelete.handlerRequestfromScheduler(delRequestList[currentPos]);
-    }
-  } else {
-    printf("0\n");
-  }
-
-  // V1版本写操作，将具体功能实现解耦到handler，scheduler只做指令的调度选择和分发
-  vector<writeRequest> writeRequestList = write_request_list.getrWriteRequest();
-  writeRequest writeRequest;
-  for (int currentPos = 0; currentPos < writeRequestList.size(); currentPos++) {
-    handlerWrite.handlerRequestfromScheduler(writeRequestList[currentPos]);
-    handlerWrite.printCompleteRequest();
-  }
-  fflush(stdout);
-
-  // V1版本读操作，将具体功能实现解耦到handler，scheduler只做指令的调度选择和分发
-  vector<readRequest> readRequestList = read_request_list.getReadRequest();
-  readRequest readRequest;
-  if (readRequestList.size()) {
-    for (int currentPos = 0; currentPos < readRequestList.size();
-         currentPos++) {
-      handlerRead.handlerRequestfromScheduler(readRequestList[currentPos]);
-    }
-    handlerRead.printCompleteRequest();
-  } else {
-    printf("0\n");
-  }
-
-  fflush(stdout);
-}
 // 一起接收请求并调度分发
 //------------------------------------------------------------------------------------------------------
 // 分开接收请求并调度分发
@@ -116,14 +79,13 @@ void Scheduler::myReadScheduler() {
   handlerread handlerRead;
   vector<readRequest> readRequestList = read_request_list.getReadRequest();
   readRequest doLastRead;
-  vector<int> readFailUnit;
+  int readFailUnit;
   string printCache;
   // string temp;
   int num;
-  readFailUnit.resize(3);
 
   // 用于判断当前读请求是否完成
-  tuple<bool, int, int> isdone3;
+  tuple<bool, int, int, int> isdone4;
   tuple<bool, int> isdone2;
   int readFailId, readFailObjSize;
   // 对之前时间片中未读完的读请求做读操作
@@ -134,9 +96,10 @@ void Scheduler::myReadScheduler() {
       // auto &element = readNotDone.back();
 
       int requestId = std::get<0>(*rit);
-      vector<int> &requestObjUnit = std::get<1>(*rit);
+      int &requestObjUnit = std::get<1>(*rit);
       int &requestObjSize = std::get<2>(*rit);
       int lastJumpDiskId = std::get<3>(*rit);
+      // 调用这个函数就说明了一定能读到，只针对上次跳或者没读完的情况，不针对一次也没读到的情况
       isdone2 = handlerRead.handlerRequestfromScheduler(
           read_request_list.getreadRequestByRequestId(requestId),
           requestObjUnit, requestObjSize, lastJumpDiskId);
@@ -150,7 +113,7 @@ void Scheduler::myReadScheduler() {
         rit = std::reverse_iterator<decltype(it)>(it);
       } else {
         for (int n{0}; n < REP_NUM; n++) {
-          requestObjUnit[n] += std::get<1>(isdone2);
+          requestObjUnit += std::get<1>(isdone2);
           requestObjSize -= std::get<1>(isdone2);
         }
         ++rit;
@@ -187,24 +150,23 @@ void Scheduler::myReadScheduler() {
     // 对当前时间片来的读请求做读操作
     for (int currentPos = 0; currentPos < readRequestList.size();
          currentPos++) {
-      isdone3 =
+      isdone4 =
           handlerRead.handlerRequestfromScheduler(readRequestList[currentPos]);
-      if (!std::get<0>(isdone3)) {
+      if (!std::get<0>(isdone4)) {
         // 获得读失败的当前请求Id
         readFailId = readRequestList[currentPos].getRequestId();
         // 将没有读完的读请求id放入readNotDone这个list中,因为我已经在handler的时候就修改了obj的unit和size,obj不能改
         // 获得读失败，下一个读的起始unit
         Object obj =
             object_list.getObject(readRequestList[currentPos].getObjectId());
-        vector<int> objUnit = obj.getObjectUnit();
+        // 这里的qwer是起始Unit位置
         int objSize = obj.getObjectSize();
-        for (int m{0}; m < REP_NUM; m++) {
-          readFailUnit[m] = objUnit[m] + std::get<1>(isdone3);
-        }
+
+        readFailUnit = std::get<3>(isdone4) + std::get<1>(isdone4);
         // readFailUnit[m] = objUnit[m] + std::get<1>(isdone3);
-        readFailObjSize = objSize - std::get<1>(isdone3);
+        readFailObjSize = objSize - std::get<1>(isdone4);
         readNotDone.emplace_back(make_tuple(
-            readFailId, readFailUnit, readFailObjSize, std::get<2>(isdone3)));
+            readFailId, readFailUnit, readFailObjSize, std::get<2>(isdone4)));
       }
     }
 
