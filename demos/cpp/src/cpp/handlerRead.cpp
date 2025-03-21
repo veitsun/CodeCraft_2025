@@ -9,11 +9,12 @@
 // 现在的行为是读一个对象
 // 不跨时间片读
 // 第一个参数是是否读成功，第二参数是读了多少个对象块，第三个参数是这次读的磁盘号，第四个参数是起始Unit位置
-tuple<bool, int, int, int>
+tuple<bool, int, int, int, bool>
 handlerread::handlerRequestfromScheduler(readRequest readRequest) {
   bool whoever;
-  tuple<bool, int, int, int> isDone;
+  tuple<bool, int, int, int, bool> isDone;
   std::get<0>(isDone) = false;
+  std::get<4>(isDone) = false;
 
   int costTokens;
   // int objUnit[REP_NUM];
@@ -30,6 +31,8 @@ handlerread::handlerRequestfromScheduler(readRequest readRequest) {
   for (int i = 0; i < REP_NUM; i++) {
     int checkHowManyTokensCost =
         (diskList[repDisk[i] - 1].howManyTokensCost(objUnit[i], whoever));
+    /****************************************要做已做**************************************/
+    /*************************（包括要跳已跳要读已读或者要读未读完）**************************/
     // 跳逻辑
     if (checkHowManyTokensCost == maxToken + 1) {
       whichDiskIJumped.emplace_back(repDisk[i] - 1);
@@ -42,6 +45,7 @@ handlerread::handlerRequestfromScheduler(readRequest readRequest) {
       break;
     }
 
+    // 最少可以读一个
     int checkRemainTokens = diskList[repDisk[i] - 1].remainTokens();
     if ((diskList[repDisk[i] - 1].howManyTokensCost(objUnit[i], whoever)) <
         diskList[repDisk[i] - 1].remainTokens()) {
@@ -65,8 +69,18 @@ handlerread::handlerRequestfromScheduler(readRequest readRequest) {
       }
       break;
     }
-    // 没有读成功也一次没读到
-    else {
+
+    /****************************************要做未做**************************************/
+    /*******************************（包括要跳未跳或者要读未读）*****************************/
+    else if (i == 2) {
+
+      /*
+      这里包括了 checkHowManyTokensCost == maxToken + 2的情况(要跳未跳)
+      这里包括了(diskList[repDisk[i] - 1].howManyTokensCost(objUnit[i],
+      whoever)) > diskList[repDisk[i] - 1].remainTokens()（要读未读）
+      */
+      std::get<4>(isDone) = true;
+      break;
     }
   }
 

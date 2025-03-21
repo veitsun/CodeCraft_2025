@@ -5,6 +5,7 @@
 // #include "handlerWrite.h"
 // #include "preProcess.h"
 
+#include "request.h"
 #include <cstdio>
 #include <list>
 #include <tuple>
@@ -18,7 +19,10 @@ public:
   Scheduler(/* args */) {};
   ~Scheduler() {};
   // 没有完成的读请求vector，请求号、剩余unit起始位置、剩余unit数量,list是一个链表，需要再加一个参数存磁盘id
+  // 这里存做而已做
   list<tuple<int, int, int, int>> readNotDone;
+  // 这里存做而未做
+  list<readRequest> readButNotRead;
   void myScheduler();
 
   void myDeleteScheduler();

@@ -10,6 +10,7 @@ bool readRequestList::listIsEmpty() { return readrequestlist.empty(); }
 
 vector<readRequest> readRequestList::getReadRequest() {
   std::vector<readRequest> request;
+  // 反向拿请求更快，正向需要遍历整个
   for (auto it = readrequestlist.begin(); it != readrequestlist.end(); ++it) {
     // 弹出队头dd
     if (it->getTime() == currentTime)
