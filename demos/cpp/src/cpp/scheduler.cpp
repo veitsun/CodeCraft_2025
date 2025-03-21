@@ -52,6 +52,14 @@ void Scheduler::myDeleteScheduler() {
           ++it;
         }
       }
+      for (auto it = readButNotRead.begin(); it != readButNotRead.end();) {
+        if ((*it).getObjectId() == delRequestList[i].getObjectId()) {
+          deleteReadRequest.emplace_back((*it).getRequestId());
+          it = readButNotRead.erase(it);
+        } else {
+          ++it;
+        }
+      }
     }
     printf("%d\n", deleteReadRequest.size());
     for (int k{0}; k < deleteReadRequest.size(); ++k) {
@@ -84,7 +92,7 @@ void Scheduler::myReadScheduler() {
   // string temp;
   int num;
 
-  // 用于判断当前读请求是否完成
+  // 第一个参数是是否读成功，第二参数是读了多少个对象块，第三个参数是这次读的磁盘号，第四个参数是起始Unit位置，第五个参数是如果这个请求要做未做就true
   tuple<bool, int, int, int, bool> isdone5;
   tuple<bool, int> isdone2;
   int readFailId, readFailObjSize;
@@ -159,25 +167,28 @@ void Scheduler::myReadScheduler() {
         // readNotDone.pop_back();
         it = readButNotRead.erase(it);
         rit = std::reverse_iterator<decltype(it)>(it);
-      } else {
-        if (!std::get<0>(isdone5)) {
-          if (std::get<4>(isdone5)) {
-            readButNotRead.emplace_back(*rit);
-          }
-          // 获得读失败的当前请求Id
-          readFailId = (*rit).getRequestId();
-          // 将没有读完的读请求id放入readNotDone这个list中,因为我已经在handler的时候就修改了obj的unit和size,obj不能改
-          // 获得读失败，下一个读的起始unit
-          Object obj = object_list.getObject((*rit).getObjectId());
-          // 这里的qwer是起始Unit位置
-          int objSize = obj.getObjectSize();
+      } else if ((!std::get<0>(isdone5)) && (!std::get<4>(isdone5))) {
+        // 获得读失败的当前请求Id
+        readFailId = (*rit).getRequestId();
+        // 将没有读完的读请求id放入readNotDone这个list中,因为我已经在handler的时候就修改了obj的unit和size,obj不能改
+        // 获得读失败，下一个读的起始unit
+        Object obj = object_list.getObject((*rit).getObjectId());
+        // 这里的qwer是起始Unit位置
+        int objSize = obj.getObjectSize();
 
-          readFailUnit = std::get<3>(isdone5) + std::get<1>(isdone5);
-          // readFailUnit[m] = objUnit[m] + std::get<1>(isdone3);
-          readFailObjSize = objSize - std::get<1>(isdone5);
-          readNotDone.emplace_back(make_tuple(
-              readFailId, readFailUnit, readFailObjSize, std::get<2>(isdone5)));
-        }
+        readFailUnit = std::get<3>(isdone5) + std::get<1>(isdone5);
+        // readFailUnit[m] = objUnit[m] + std::get<1>(isdone3);
+        readFailObjSize = objSize - std::get<1>(isdone5);
+        readNotDone.emplace_back(make_tuple(
+            readFailId, readFailUnit, readFailObjSize, std::get<2>(isdone5)));
+        // 获得反向迭代器的正向迭代器
+        auto it = rit.base();
+        // 反向的正向在反向的下一个所以要--来指向要删除的元素
+        --it;
+        // readNotDone.pop_back();
+        it = readButNotRead.erase(it);
+        rit = std::reverse_iterator<decltype(it)>(it);
+      } else {
         ++rit;
       }
     }
@@ -193,21 +204,38 @@ void Scheduler::myReadScheduler() {
       if (!std::get<0>(isdone5)) {
         if (std::get<4>(isdone5)) {
           readButNotRead.emplace_back(readRequestList[currentPos]);
-        }
-        // 获得读失败的当前请求Id
-        readFailId = readRequestList[currentPos].getRequestId();
-        // 将没有读完的读请求id放入readNotDone这个list中,因为我已经在handler的时候就修改了obj的unit和size,obj不能改
-        // 获得读失败，下一个读的起始unit
-        Object obj =
-            object_list.getObject(readRequestList[currentPos].getObjectId());
-        // 这里的qwer是起始Unit位置
-        int objSize = obj.getObjectSize();
+        } else {
+          // 获得读失败的当前请求Id
+          readFailId = readRequestList[currentPos].getRequestId();
+          // 将没有读完的读请求id放入readNotDone这个list中,因为我已经在handler的时候就修改了obj的unit和size,obj不能改
+          // 获得读失败，下一个读的起始unit
+          Object obj =
+              object_list.getObject(readRequestList[currentPos].getObjectId());
+          // 这里的qwer是起始Unit位置
+          int objSize = obj.getObjectSize();
 
-        readFailUnit = std::get<3>(isdone5) + std::get<1>(isdone5);
-        // readFailUnit[m] = objUnit[m] + std::get<1>(isdone3);
-        readFailObjSize = objSize - std::get<1>(isdone5);
-        readNotDone.emplace_back(make_tuple(
-            readFailId, readFailUnit, readFailObjSize, std::get<2>(isdone5)));
+          readFailUnit = std::get<3>(isdone5) + std::get<1>(isdone5);
+          // readFailUnit[m] = objUnit[m] + std::get<1>(isdone3);
+          readFailObjSize = objSize - std::get<1>(isdone5);
+          readNotDone.emplace_back(make_tuple(
+              readFailId, readFailUnit, readFailObjSize, std::get<2>(isdone5)));
+        }
+        // // 获得读失败的当前请求Id
+        // readFailId = readRequestList[currentPos].getRequestId();
+        // //
+        // 将没有读完的读请求id放入readNotDone这个list中,因为我已经在handler的时候就修改了obj的unit和size,obj不能改
+        // // 获得读失败，下一个读的起始unit
+        // Object obj =
+        //     object_list.getObject(readRequestList[currentPos].getObjectId());
+        // // 这里的qwer是起始Unit位置
+        // int objSize = obj.getObjectSize();
+
+        // readFailUnit = std::get<3>(isdone5) + std::get<1>(isdone5);
+        // // readFailUnit[m] = objUnit[m] + std::get<1>(isdone3);
+        // readFailObjSize = objSize - std::get<1>(isdone5);
+        // readNotDone.emplace_back(make_tuple(
+        //     readFailId, readFailUnit, readFailObjSize,
+        //     std::get<2>(isdone5)));
       }
     }
 

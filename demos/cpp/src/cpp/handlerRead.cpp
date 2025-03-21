@@ -8,7 +8,7 @@
 
 // 现在的行为是读一个对象
 // 不跨时间片读
-// 第一个参数是是否读成功，第二参数是读了多少个对象块，第三个参数是这次读的磁盘号，第四个参数是起始Unit位置
+// 第一个参数是是否读成功，第二参数是读了多少个对象块，第三个参数是这次读的磁盘号，第四个参数是起始Unit位置，第五个参数是如果这个请求要做未做就true
 tuple<bool, int, int, int, bool>
 handlerread::handlerRequestfromScheduler(readRequest readRequest) {
   bool whoever;
@@ -47,7 +47,7 @@ handlerread::handlerRequestfromScheduler(readRequest readRequest) {
 
     // 最少可以读一个
     int checkRemainTokens = diskList[repDisk[i] - 1].remainTokens();
-    if ((diskList[repDisk[i] - 1].howManyTokensCost(objUnit[i], whoever)) <
+    if ((diskList[repDisk[i] - 1].howManyTokensCost(objUnit[i], whoever)) <=
         diskList[repDisk[i] - 1].remainTokens()) {
       // 可以读,如何判断读了多少个并且记录到isDone中
       for (int j{0}; j < objSize; j++) {
@@ -72,7 +72,11 @@ handlerread::handlerRequestfromScheduler(readRequest readRequest) {
 
     /****************************************要做未做**************************************/
     /*******************************（包括要跳未跳或者要读未读）*****************************/
-    else if (i == 2) {
+    else if ((i == 2) &&
+             ((diskList[repDisk[i] - 1].howManyTokensCost(objUnit[i],
+                                                          whoever)) >
+              diskList[repDisk[i] - 1].remainTokens()) &&
+             (checkHowManyTokensCost != maxToken + 1)) {
 
       /*
       这里包括了 checkHowManyTokensCost == maxToken + 2的情况(要跳未跳)
