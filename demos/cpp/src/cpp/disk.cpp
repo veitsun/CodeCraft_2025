@@ -189,7 +189,7 @@ int Disk::howManyTokensCost(int objUnit, bool &path) {
       // 剩余的token 都没有消耗，才能执行跳 的 操作；
       return maxToken + 1;
     }
-    // 只能留给下一个时间片处理
+    // 能执行到这里说明想要跳但是当前时间片有消耗，就没办法跳，不能进行操作
     return maxToken + 2;
   }
 }
@@ -203,100 +203,85 @@ bool Disk::diskRead(int unit_id) {
   int costToken = howManyTokensCost(unit_id, path);
   int curToken = pointer.token;
   if (costToken > curToken) {
+    // 预消耗 token 大于 当前 token
     if (costToken == maxToken + 1 && curToken == maxToken) {
+      // 想要跳剩余token数也够跳，能拿到 maxToken + 1
+      // ，也就说明了一定能够跳，剩余token量一定是maxtoken
       executeJump(unit_id); // 执行跳
+      return false;
+    } else if (costToken == maxToken + 2) {
+      // 想要跳但是当前时间片的token有消耗就不够跳，那么就不能执行跳的动作
+      return false;
+    } else {
+      // 在当前磁盘上的剩余token不够任何操作，磁头没有任何动作，读取不成功
+      return false;
     }
-    return false;
   }
 
   // tokenCost > curToken 表示当前时间片读不了，只能先J过去，下个时间片再r
-  if (costToken > curToken && curToken == maxToken) {
-    // 这个 if 暂时一定进不来
-    pointer.token = 0;
-    // 就执行了跳的动作了
-    pointer.current_position = unit_id;
-    // pointer.pre_is_read = false;
-    // printf("j");
-    cache += "j " + std::to_string(unit_id);
-    pointer.pre_is_read = false;
-    // pointer.
-    return false;
-  } else {
-    // 当前时间片可以读
-    // path: 1: read过去, 0: pass过去
-    if (path) {
-      pathLen(pointer.current_position, unit_id);
-      for (int d = 0; d <= pathLen(pointer.current_position, unit_id); d++) {
-        // printf("r");
-        if (pointer.pre_is_read == false) {
-          // pointer.pre_token = 64;
-          if (pointer.token - 64 < 0) {
-            pointer.current_position =
-                realPosition(pointer.current_position + d);
-            return false;
-          }
-          pointer.token -= 64;
-          pointer.pre_is_read = true;
-          pointer.pre_token = 64;
-        } else {
-          if (pointer.token - max(ceil(pointer.pre_token * 0.8), 16) < 0) {
-            pointer.current_position =
-                realPosition(pointer.current_position + d);
-            return false;
-          }
-          pointer.token -= max(ceil(pointer.pre_token * 0.8), 16);
-          pointer.pre_token = max(ceil(pointer.pre_token * 0.8), 16);
-          pointer.pre_is_read = true;
-        }
-        cache += "r";
+  // 如果能执行到这里，那么说明，剩余token数量，肯定是能够读到想要读的那个存储单元的
+  // 磁头一定会有动作
+  // 返回值一定会是 true
+  // path: 1: read过去读, 0: pass过去读
+  if (path) {
+    // pathLen(pointer.current_position, unit_id);
+    for (int d = 0; d <= pathLen(pointer.current_position, unit_id); d++) {
+      if (pointer.pre_is_read == false) {
+        // if (pointer.token - 64 < 0) {
+        //   pointer.current_position = realPosition(pointer.current_position +
+        //   d); return false;
+        // }
+        pointer.token -= 64;
+        pointer.pre_is_read = true;
+        pointer.pre_token = 64;
+      } else {
+        // if (pointer.token - max(ceil(pointer.pre_token * 0.8), 16) < 0) {
+        //   pointer.current_position = realPosition(pointer.current_position +
+        //   d); return false;
+        // }
+        pointer.token -= max(ceil(pointer.pre_token * 0.8), 16);
+        pointer.pre_token = max(ceil(pointer.pre_token * 0.8), 16);
+        pointer.pre_is_read = true;
       }
-    } else {
-      pathLen(pointer.current_position, unit_id);
-      for (int d = 0; d <= (pathLen(pointer.current_position, unit_id) - 1);
-           d++) {
-        // printf("p");
-        if (pointer.token - 1 < 0) {
-          pointer.current_position = realPosition(pointer.current_position + d);
-          return false;
-        }
-        cache += "p";
-        pointer.token -= 1;
-        // pointer.pre_token =
-        pointer.pre_is_read = false;
-        // pointer.
-      }
-      if (pointer.token - 64 < 0) {
-        pointer.current_position =
-            realPosition(pointer.current_position + unit_id);
-        return false;
-      }
-      pointer.token -= 64;
-      pointer.pre_is_read = true;
-      pointer.pre_token = 64;
-      // printf("r");
       cache += "r";
     }
-    // pointer.token -= costToken;
-    pointer.current_position = realPosition(unit_id + 1);
-    return true;
+  } else {
+    // pathLen(pointer.current_position, unit_id);
+    for (int d = 0; d <= (pathLen(pointer.current_position, unit_id) - 1);
+         d++) {
+      // if (pointer.token - 1 < 0) {
+      //   pointer.current_position = realPosition(pointer.current_position +
+      //   d); return false;
+      // }
+      cache += "p";
+      pointer.token -= 1;
+      pointer.pre_is_read = false;
+    }
+    // if (pointer.token - 64 < 0) {
+    //   pointer.current_position =
+    //       realPosition(pointer.current_position + unit_id);
+    //   return false;
+    // }
+    pointer.token -= 64;
+    pointer.pre_is_read = true;
+    pointer.pre_token = 64;
+    cache += "r";
   }
+  pointer.current_position = realPosition(unit_id + 1);
+  return true;
 }
 
 bool Disk::executeJump(int unit_id) // 需要执行jump操作
 {
-  // curerpointer.token
   int current_token = pointer.token;
   if (current_token < maxToken) {
-    // 这样就跳不了
+    // 这样就跳不了，进了这里一定能跳
     return false;
   }
   pointer.token = 0;
   pointer.current_position = unit_id;
   cache += std::string("j ");
-  // std::cout << cache << std::endl;
   cache += std::to_string(unit_id);
-  // std::cout << cache << std::endl;
-  // cout.flush();
   pointer.pre_is_read = false;
   pointer.pre_token = maxToken;
   return true;
