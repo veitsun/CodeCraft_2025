@@ -107,10 +107,22 @@ handlerread::handlerRequestfromScheduler(readRequest readRequest,
   int objUnit = objUnitFromOnce;
   int objSize = objSizeFromOnce;
   int diskID = objDiskId;
+
+  // bool whoever;
+  // int checkHowManyTokensCost =
+  //     (diskList[objDiskId - 1].howManyTokensCost(objUnitFromOnce, whoever));
+  // if (checkHowManyTokensCost == maxToken + 1) {
+  //   printf("j ?");
+  // }
+
   for (int j{0}; j < objSize; j++) {
-    diskList[diskID - 1].diskRead(objUnit + j);
+    std::get<0>(isDone) = diskList[diskID - 1].diskRead(objUnit + j);
+    if (!std::get<0>(isDone)) {
+      isDone.second = j;
+      break;
+    }
   }
-  std::get<0>(isDone) = true;
+  // std::get<0>(isDone) = true;
   completeRequest.emplace_back(readRequest.getRequestId());
   return isDone;
 }

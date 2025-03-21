@@ -120,10 +120,8 @@ void Scheduler::myReadScheduler() {
         it = readNotDone.erase(it);
         rit = std::reverse_iterator<decltype(it)>(it);
       } else {
-        for (int n{0}; n < REP_NUM; n++) {
-          requestObjUnit += std::get<1>(isdone2);
-          requestObjSize -= std::get<1>(isdone2);
-        }
+        requestObjUnit += std::get<1>(isdone2);
+        requestObjSize -= std::get<1>(isdone2);
         ++rit;
       }
     }
@@ -194,7 +192,7 @@ void Scheduler::myReadScheduler() {
     }
   }
 
-  // 读了一个之后，在下一个时间片中又读这个，单磁头往前移动了，且磁头只能单向移动，此时可以选择读其他副本显然更优
+  // 读当前时间片
   if (readRequestList.size()) {
     // 对当前时间片来的读请求做读操作
     for (int currentPos = 0; currentPos < readRequestList.size();
@@ -220,22 +218,6 @@ void Scheduler::myReadScheduler() {
           readNotDone.emplace_back(make_tuple(
               readFailId, readFailUnit, readFailObjSize, std::get<2>(isdone5)));
         }
-        // // 获得读失败的当前请求Id
-        // readFailId = readRequestList[currentPos].getRequestId();
-        // //
-        // 将没有读完的读请求id放入readNotDone这个list中,因为我已经在handler的时候就修改了obj的unit和size,obj不能改
-        // // 获得读失败，下一个读的起始unit
-        // Object obj =
-        //     object_list.getObject(readRequestList[currentPos].getObjectId());
-        // // 这里的qwer是起始Unit位置
-        // int objSize = obj.getObjectSize();
-
-        // readFailUnit = std::get<3>(isdone5) + std::get<1>(isdone5);
-        // // readFailUnit[m] = objUnit[m] + std::get<1>(isdone3);
-        // readFailObjSize = objSize - std::get<1>(isdone5);
-        // readNotDone.emplace_back(make_tuple(
-        //     readFailId, readFailUnit, readFailObjSize,
-        //     std::get<2>(isdone5)));
       }
     }
 
