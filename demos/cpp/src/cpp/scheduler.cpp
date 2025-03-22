@@ -256,7 +256,7 @@ void Scheduler::myReadScheduler() {
 
     //  当j的时候不输出#
     for (int i{0}; i < maxDisk; i++) {
-      printCache = diskList[i].getOncetimeDiskHeadAction();
+      diskList[i].getOncetimeDiskHeadAction();
       diskList[i].diskPrintCacheClear();
       diskList[i].diskDiskHeadInit();
       cout << endl;
@@ -264,7 +264,7 @@ void Scheduler::myReadScheduler() {
     handlerRead.printCompleteRequest();
   } else {
     for (int i{0}; i < maxDisk; i++) {
-      printCache = diskList[i].getOncetimeDiskHeadAction();
+      diskList[i].getOncetimeDiskHeadAction();
       diskList[i].diskPrintCacheClear();
       diskList[i].diskDiskHeadInit();
       cout << endl;

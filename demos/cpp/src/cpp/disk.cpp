@@ -70,7 +70,23 @@ bool Disk::isNotNum_func(char c) {
   return true;
 }
 
-string Disk::getOncetimeDiskHeadAction() {
+void Disk::getOncetimeDiskHeadAction() {
+  if (cache.size() == 0) {
+    cout << "#";
+  } else {
+    if (cache[0] == 'j') {
+      cout << "j ";
+      string temp;
+      int num = 0;
+      for (int i = 2; i < cache.size(); i++) {
+        temp += cache[i];
+      }
+      num = std::stoi(temp);
+      cout << num;
+    } else {
+      cout << cache << "#";
+    }
+  }
   // print cache;
   // for (int i = 0; i < cache.length(); i++) {
   //   printf("%c", cache[i]);
@@ -78,18 +94,18 @@ string Disk::getOncetimeDiskHeadAction() {
   // std::getline(std::cin, cache);
   // std::cout << cache;
   // cout.flush();
-  bool is_notnum = false;
-  if (cache.size() >= 1 && cache[0] == 'j') {
-    for (int i = 2; i < cache.size(); i++) {
-      if (isNotNum_func(cache[i])) {
-        is_notnum = true;
-      }
-    }
-    if (is_notnum) {
-      printf("j %d???", 2);
-    }
-  }
-  return this->cache;
+  // bool is_notnum = false;
+  // if (cache.size() >= 1 && cache[0] == 'j') {
+  //   for (int i = 2; i < cache.size(); i++) {
+  //     if (isNotNum_func(cache[i])) {
+  //       is_notnum = true;
+  //     }
+  //   }
+  //   if (is_notnum) {
+  //     printf("j %d???", 2);
+  //   }
+  // }
+  // return this->cache;
 }
 
 void Disk::diskWrite(int unit_id, int obj_id, int obj_size) {

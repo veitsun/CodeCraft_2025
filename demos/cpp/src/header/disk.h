@@ -42,7 +42,7 @@ public:
   int getHeadPosition() const { return pointer.current_position; }
 
   // 最新版本是我不需要提供磁盘块号，我只是单个磁盘的抽象
-  string getOncetimeDiskHeadAction();
+  void getOncetimeDiskHeadAction();
 
   void diskWrite(int unit_id, int obj_id, int obj_size); // 写功能
 
