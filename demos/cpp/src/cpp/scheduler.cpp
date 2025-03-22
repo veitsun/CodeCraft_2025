@@ -257,31 +257,6 @@ void Scheduler::myReadScheduler() {
     //  当j的时候不输出#
     for (int i{0}; i < maxDisk; i++) {
       printCache = diskList[i].getOncetimeDiskHeadAction();
-      for (int q{0}; q < handlerRead.whichDiskIJumped.size(); q++) {
-        if (handlerRead.whichDiskIJumped[q] == i) {
-          flagggg = i;
-          break;
-        }
-      }
-      if (i != flagggg) {
-        cout << printCache;
-        cout << "#";
-      } else {
-        cout << printCache[0];
-        cout << printCache[1];
-        string temp;
-        for (int u{2}; u < printCache.size(); u++) {
-          temp += printCache[u];
-        }
-        try {
-          num = std::stoi(temp);
-
-        } catch (exception &e) {
-          cerr << temp << " " << printCache << endl;
-          abort();
-        }
-        cout << num;
-      }
       diskList[i].diskPrintCacheClear();
       diskList[i].diskDiskHeadInit();
       cout << endl;
@@ -290,32 +265,6 @@ void Scheduler::myReadScheduler() {
   } else {
     for (int i{0}; i < maxDisk; i++) {
       printCache = diskList[i].getOncetimeDiskHeadAction();
-      for (int q{0}; q < handlerRead.whichDiskIJumped.size(); q++) {
-        if (handlerRead.whichDiskIJumped[q] == i) {
-          flagggg = i;
-          break;
-        }
-      }
-      if (i != flagggg) {
-        cout << printCache;
-        cout << "#";
-      } else {
-        cout << printCache[0];
-        cout << printCache[1];
-        string temp;
-        for (int u{2}; u < printCache.size(); u++) {
-          temp += printCache[u];
-        }
-        try {
-          num = std::stoi(temp);
-
-        } catch (exception &e) {
-          // cerr << temp << endl;
-          cerr << temp << " " << printCache << endl;
-          abort();
-        }
-        cout << num;
-      }
       diskList[i].diskPrintCacheClear();
       diskList[i].diskDiskHeadInit();
       cout << endl;
