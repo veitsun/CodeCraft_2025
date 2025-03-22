@@ -25,7 +25,6 @@ handlerread::handlerRequestfromScheduler(readRequest readRequest) {
 
   // bool judge = true;
   bool judge = false;
-  // 我现在每一个副本写的位置都是一样的，每个副本写在不同的磁盘，每个副本在各自磁盘的位置相同，所以我现在读，只需要读一个副本即可，虽然他这里给的unit是三个副本的数据，但是每个副本的数据都是一样的，所以我用第一个就ok了
   // 遍历这个对象的对象块
   // 如果当前磁头预消耗tokens小于当前磁头剩余tokens数量，一个if的行为对应读一个对象的对象块
   for (int i = 0; i < REP_NUM; i++) {
@@ -72,11 +71,9 @@ handlerread::handlerRequestfromScheduler(readRequest readRequest) {
 
     /****************************************要做未做**************************************/
     /*******************************（包括要跳未跳或者要读未读）*****************************/
-    else if ((i == 2) &&
-             ((diskList[repDisk[i] - 1].howManyTokensCost(objUnit[i],
-                                                          whoever)) >
-              diskList[repDisk[i] - 1].remainTokens()) &&
-             (checkHowManyTokensCost != maxToken + 1)) {
+    else if ((i == 2) && ((diskList[repDisk[i] - 1].howManyTokensCost(
+                              objUnit[i], whoever)) >
+                          diskList[repDisk[i] - 1].remainTokens())) {
 
       /*
       这里包括了 checkHowManyTokensCost == maxToken + 2的情况(要跳未跳)
@@ -103,21 +100,25 @@ handlerread::handlerRequestfromScheduler(readRequest readRequest,
                                          int objUnitFromOnce,
                                          int objSizeFromOnce, int objDiskId) {
   pair<bool, int> isDone;
-  std::get<0>(isDone) = false;
+  isDone.first = false;
   int objUnit = objUnitFromOnce;
   int objSize = objSizeFromOnce;
   int diskID = objDiskId;
 
-  // bool whoever;
-  // int checkHowManyTokensCost =
-  //     (diskList[objDiskId - 1].howManyTokensCost(objUnitFromOnce, whoever));
-  // if (checkHowManyTokensCost == maxToken + 1) {
-  //   printf("j ?");
-  // }
+  bool whoever;
+  int checkHowManyTokensCost =
+      (diskList[objDiskId - 1].howManyTokensCost(objUnitFromOnce, whoever));
+  int checkRemainTokens = diskList[objDiskId - 1].remainTokens();
+
+  if ((checkHowManyTokensCost == maxToken + 2) ||
+      (checkHowManyTokensCost == maxToken + 1)) {
+    isDone.second = -1;
+    return isDone;
+  }
 
   for (int j{0}; j < objSize; j++) {
-    std::get<0>(isDone) = diskList[diskID - 1].diskRead(objUnit + j);
-    if (!std::get<0>(isDone)) {
+    isDone.first = diskList[diskID - 1].diskRead(objUnit + j);
+    if (!isDone.first) {
       isDone.second = j;
       break;
     }

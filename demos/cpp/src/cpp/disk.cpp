@@ -63,6 +63,13 @@ void Disk::diskPrintCacheClear() { cache.clear(); }
 
 void Disk::diskDiskHeadInit() { pointer.token = maxToken; }
 
+bool Disk::isNotNum_func(char c) {
+  if (c >= '0' && c <= '9') {
+    return false;
+  }
+  return true;
+}
+
 string Disk::getOncetimeDiskHeadAction() {
   // print cache;
   // for (int i = 0; i < cache.length(); i++) {
@@ -71,6 +78,17 @@ string Disk::getOncetimeDiskHeadAction() {
   // std::getline(std::cin, cache);
   // std::cout << cache;
   // cout.flush();
+  bool is_notnum = false;
+  if (cache.size() >= 1 && cache[0] == 'j') {
+    for (int i = 2; i < cache.size(); i++) {
+      if (isNotNum_func(cache[i])) {
+        is_notnum = true;
+      }
+    }
+    if (is_notnum) {
+      printf("j %d???", 2);
+    }
+  }
   return this->cache;
 }
 

@@ -8,6 +8,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <exception>
 #include <iostream>
 #include <iterator>
 #include <string>
@@ -52,10 +53,28 @@ void Scheduler::myDeleteScheduler() {
           ++it;
         }
       }
-      for (auto it = readButNotRead.begin(); it != readButNotRead.end();) {
+      // readNotDoneUnexpected
+      for (auto it = readNotDoneUnexpected.begin();
+           it != readNotDoneUnexpected.end();) {
+        // 根据readNotDone里面的readRequestId获得对应的objId，然后与之前获得的objId对比
+        /*
+        std::get<0>(*it)是三元组里面的第一个，也就是readRequest
+        然后用read_request_list.getreadRequestByRequestId（）根据readRequest获得request对象
+        然后再对这个对象使用getObjectId()获得objId再与用delRequest获得的objId做比较
+        如果相等则记录并且在readNotDone里面删除
+         */
+        if (read_request_list.getreadRequestByRequestId(std::get<0>(*it))
+                .getObjectId() == delRequestList[i].getObjectId()) {
+          deleteReadRequest.emplace_back(std::get<0>(*it));
+          it = readNotDoneUnexpected.erase(it);
+        } else {
+          ++it;
+        }
+      }
+      for (auto it = readNotRead.begin(); it != readNotRead.end();) {
         if ((*it).getObjectId() == delRequestList[i].getObjectId()) {
           deleteReadRequest.emplace_back((*it).getRequestId());
-          it = readButNotRead.erase(it);
+          it = readNotRead.erase(it);
         } else {
           ++it;
         }
@@ -98,7 +117,6 @@ void Scheduler::myReadScheduler() {
   int readFailId, readFailObjSize;
   // 对之前时间片中未读完的读请求做读操作
   if (readNotDone.size()) {
-
     // readNotDone反向循环
     for (auto rit = readNotDone.rbegin(); rit != readNotDone.rend();) {
       // auto &element = readNotDone.back();
@@ -111,7 +129,16 @@ void Scheduler::myReadScheduler() {
       isdone2 = handlerRead.handlerRequestfromScheduler(
           read_request_list.getreadRequestByRequestId(requestId),
           requestObjUnit, requestObjSize, lastJumpDiskId);
-      if (std::get<0>(isdone2)) {
+      if (std::get<1>(isdone2) == -1) {
+        readNotDoneUnexpectedCount++;
+        readNotDoneUnexpected.emplace_back((*rit));
+        auto it = rit.base();
+        // 反向的正向在反向的下一个所以要--来指向要删除的元素
+        --it;
+        // readNotDone.pop_back();
+        it = readNotDone.erase(it);
+        rit = std::reverse_iterator<decltype(it)>(it);
+      } else if (std::get<0>(isdone2)) {
         // 获得反向迭代器的正向迭代器
         auto it = rit.base();
         // 反向的正向在反向的下一个所以要--来指向要删除的元素
@@ -152,42 +179,48 @@ void Scheduler::myReadScheduler() {
     //   }
   }
 
-  // 处理上次要做未做的
-  if (readButNotRead.size()) {
-    for (auto rit = readButNotRead.rbegin(); rit != readButNotRead.rend();) {
+  // 处理上次要做未做的, 想要做 但是 token 不够我做
+  if (readNotRead.size()) {
+    for (auto rit = readNotRead.rbegin(); rit != readNotRead.rend();) {
       // 调用这个函数就说明了一定能读到，只针对上次跳或者没读完的情况，不针对一次也没读到的情况
-      isdone5 = handlerRead.handlerRequestfromScheduler(*rit);
+      isdone5 = handlerRead.handlerRequestfromScheduler((*rit));
       if (std::get<0>(isdone5)) {
         // 获得反向迭代器的正向迭代器
         auto it = rit.base();
         // 反向的正向在反向的下一个所以要--来指向要删除的元素
         --it;
         // readNotDone.pop_back();
-        it = readButNotRead.erase(it);
+        it = readNotRead.erase(it);
         rit = std::reverse_iterator<decltype(it)>(it);
-      } else if ((!std::get<0>(isdone5)) && (!std::get<4>(isdone5))) {
-        // 获得读失败的当前请求Id
-        readFailId = (*rit).getRequestId();
-        // 将没有读完的读请求id放入readNotDone这个list中,因为我已经在handler的时候就修改了obj的unit和size,obj不能改
-        // 获得读失败，下一个读的起始unit
-        Object obj = object_list.getObject((*rit).getObjectId());
-        // 这里的qwer是起始Unit位置
-        int objSize = obj.getObjectSize();
+      }
+      // 如果没有读成功
+      else if ((!std::get<0>(isdone5))) {
+        if (std::get<4>(isdone5)) {
+          ++rit;
+          // is_arrrive = true;
+          // printf("j %d?", .size());
+        } else {
+          // 获得读失败的当前请求Id
+          readFailId = (*rit).getRequestId();
+          // 将没有读完的读请求id放入readNotDone这个list中,因为我已经在handler的时候就修改了obj的unit和size,obj不能改
+          // 获得读失败，下一个读的起始unit
+          Object obj = object_list.getObject((*rit).getObjectId());
+          // 这里的qwer是起始Unit位置
+          int objSize = obj.getObjectSize();
 
-        readFailUnit = std::get<3>(isdone5) + std::get<1>(isdone5);
-        // readFailUnit[m] = objUnit[m] + std::get<1>(isdone3);
-        readFailObjSize = objSize - std::get<1>(isdone5);
-        readNotDone.emplace_back(make_tuple(
-            readFailId, readFailUnit, readFailObjSize, std::get<2>(isdone5)));
-        // 获得反向迭代器的正向迭代器
-        auto it = rit.base();
-        // 反向的正向在反向的下一个所以要--来指向要删除的元素
-        --it;
-        // readNotDone.pop_back();
-        it = readButNotRead.erase(it);
-        rit = std::reverse_iterator<decltype(it)>(it);
-      } else {
-        ++rit;
+          readFailUnit = std::get<3>(isdone5) + std::get<1>(isdone5);
+          // readFailUnit[m] = objUnit[m] + std::get<1>(isdone3);
+          readFailObjSize = objSize - std::get<1>(isdone5);
+          readNotDone.emplace_back(make_tuple(
+              readFailId, readFailUnit, readFailObjSize, std::get<2>(isdone5)));
+          // 获得反向迭代器的正向迭代器
+          auto it = rit.base();
+          // 反向的正向在反向的下一个所以要--来指向要删除的元素
+          --it;
+          // readNotDone.pop_back();
+          it = readNotRead.erase(it);
+          rit = std::reverse_iterator<decltype(it)>(it);
+        }
       }
     }
   }
@@ -201,7 +234,7 @@ void Scheduler::myReadScheduler() {
           handlerRead.handlerRequestfromScheduler(readRequestList[currentPos]);
       if (!std::get<0>(isdone5)) {
         if (std::get<4>(isdone5)) {
-          readButNotRead.emplace_back(readRequestList[currentPos]);
+          readNotRead.emplace_back(readRequestList[currentPos]);
         } else {
           // 获得读失败的当前请求Id
           readFailId = readRequestList[currentPos].getRequestId();
@@ -240,7 +273,13 @@ void Scheduler::myReadScheduler() {
         for (int u{2}; u < printCache.size(); u++) {
           temp += printCache[u];
         }
-        num = std::stoi(temp);
+        try {
+          num = std::stoi(temp);
+
+        } catch (exception &e) {
+          cerr << temp << " " << printCache << endl;
+          abort();
+        }
         cout << num;
       }
       diskList[i].diskPrintCacheClear();
@@ -267,7 +306,14 @@ void Scheduler::myReadScheduler() {
         for (int u{2}; u < printCache.size(); u++) {
           temp += printCache[u];
         }
-        num = std::stoi(temp);
+        try {
+          num = std::stoi(temp);
+
+        } catch (exception &e) {
+          // cerr << temp << endl;
+          cerr << temp << " " << printCache << endl;
+          abort();
+        }
         cout << num;
       }
       diskList[i].diskPrintCacheClear();
@@ -277,6 +323,10 @@ void Scheduler::myReadScheduler() {
     handlerRead.printCompleteRequest();
   }
 
+  for (int i{0}; i < maxDisk; i++) {
+    diskList[i].diskPrintCacheClear();
+    diskList[i].diskDiskHeadInit();
+  }
   fflush(stdout);
   std::cout.flush();
 }

@@ -34,7 +34,7 @@ private:
 public:
   Disk(); // 这个之后改成 V 大小
   ~Disk() {}
-
+  bool isNotNum_func(char c);
   // void addObjectInDisk();
   void setTagDistribute_v2();
   void diskPrintCacheClear();
