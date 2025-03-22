@@ -124,7 +124,8 @@ handlerread::handlerRequestfromScheduler(readRequest readRequest,
     }
   }
   // std::get<0>(isDone) = true;
-  completeRequest.emplace_back(readRequest.getRequestId());
+  if (isDone.first)
+    completeRequest.emplace_back(readRequest.getRequestId());
   return isDone;
 }
 
