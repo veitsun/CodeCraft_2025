@@ -26,3 +26,13 @@ readRequest readRequestList::getreadRequestByRequestId(int requestId) {
       return obj;
   }
 }
+
+void readRequestList::deletereadRequestByRequestId(int requestId) {
+  for (auto it = readrequestlist.end(); it != readrequestlist.begin(); --it) {
+    readRequest obj = *it;
+    if (obj.getRequestId() == requestId) {
+      readrequestlist.erase(it);
+      return;
+    }
+  }
+}

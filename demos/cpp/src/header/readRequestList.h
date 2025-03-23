@@ -22,5 +22,6 @@ public:
   vector<readRequest> getReadRequest();
   bool listIsEmpty();
   readRequest getreadRequestByRequestId(int requestId);
+  void deletereadRequestByRequestId(int requestId);
   void clearReadRequestList() { readrequestlist.clear(); };
 };

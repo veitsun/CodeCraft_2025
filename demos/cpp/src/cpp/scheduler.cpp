@@ -246,6 +246,16 @@ void Scheduler::myReadScheduler() {
     // 对当前时间片来的读请求做读操作
     for (int currentPos = 0; currentPos < readRequestList.size();
          currentPos++) {
+      // vector<bool> flag;
+      // flag.resize(300);
+      // if (!flag[readRequestList[currentPos].getObjectId()]) {
+      //   isdone5 = handlerRead.handlerRequestfromScheduler(
+      //       readRequestList[currentPos]);
+      //   if (std::get<0>(isdone5)) {
+      //     flag[readRequestList[currentPos].getObjectId()] = true;
+      //   }
+      // }
+
       isdone5 =
           handlerRead.handlerRequestfromScheduler(readRequestList[currentPos]);
       if (!std::get<0>(isdone5)) {
@@ -267,6 +277,9 @@ void Scheduler::myReadScheduler() {
           readNotDone.emplace_back(make_tuple(
               readFailId, readFailUnit, readFailObjSize, std::get<2>(isdone5)));
         }
+      } else {
+        read_request_list.deletereadRequestByRequestId(
+            readRequestList[currentPos].getRequestId());
       }
     }
 
@@ -318,7 +331,7 @@ void Scheduler::sortReadRequest(vector<readRequest> &readRequestList) {
               return disk1[0] < disk2[0];
             });
   // 二阶段，段内排序
-  // 我们将每个磁盘的请求提取出来，进行排序
+  // 将每个磁盘的请求提取出来，进行排序
   for (int diskId = 0; diskId < maxDisk; ++diskId) {
     // 创建一个vector来存放该磁盘的所有请求
     vector<readRequest> diskRequests;
