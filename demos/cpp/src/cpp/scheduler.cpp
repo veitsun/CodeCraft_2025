@@ -5,6 +5,7 @@
 #include "handlerWrite.h"
 // #include "object.h"
 // #include "objectList.h"
+#include <algorithm>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
@@ -18,8 +19,6 @@
 handlerdelete handleDelete;
 handlerwrite handlerWrite;
 handlerread handlerRead;
-
-vector<Disk> diskList;
 
 // 一起接收请求并调度分发
 //------------------------------------------------------------------------------------------------------
@@ -111,6 +110,23 @@ void Scheduler::myReadScheduler() {
   // string temp;
   int num;
 
+  /***********************************************佐证排序*********************************************/
+  if (readRequestList.size() >= 1) {
+    Object obj11 = object_list.getObject(readRequestList[0].getObjectId());
+    vector<int> unit1 = obj11.getObjectUnit();
+  }
+  if (readRequestList.size() >= 2) {
+    Object obj22 = object_list.getObject(readRequestList[1].getObjectId());
+    vector<int> unit2 = obj22.getObjectUnit();
+  }
+
+  /****************************************第一步先对读请求进行排序**************************************/
+  sortReadRequest(readRequestList);
+
+  /***********************************************然后遍历*********************************************/
+
+  for (int i{0}; i < readRequestList.size(); i++) {
+  }
   // 第一个参数是是否读成功，第二参数是读了多少个对象块，第三个参数是这次读的磁盘号，第四个参数是起始Unit位置，第五个参数是如果这个请求要做未做就true
   tuple<bool, int, int, int, bool> isdone5;
   tuple<bool, int> isdone2;
@@ -278,4 +294,80 @@ void Scheduler::myReadScheduler() {
   }
   fflush(stdout);
   std::cout.flush();
+}
+
+/*
+第一版排序方案V1
+两阶段排序：
+1.先将所有的请求根据第一个副本对应的磁盘号聚合分离成十段，分别对应十个硬盘，按照第一个硬盘对应的请求放在前面的规则
+2.每一个磁盘也就是每一段再各自排序，根据请求对应的对象的Unit起始位置到当前磁盘磁头位置的距离进行排序
+*/
+void Scheduler::sortReadRequest(vector<readRequest> &readRequestList) {
+  // 一阶段排序，十段式
+  std::sort(readRequestList.begin(), readRequestList.end(),
+            [](const readRequest &r1, const readRequest &r2) {
+              // 根据readRequest获取对应的Object对象
+              Object obj1 = object_list.getObject(r1.getObjectId());
+              Object obj2 = object_list.getObject(r2.getObjectId());
+
+              // 获取unitId数组，只考虑第一个元素
+              std::vector<int> disk1 = obj1.getObjectDisk();
+              std::vector<int> disk2 = obj2.getObjectDisk();
+
+              // 假设unit1和unit2都至少包含一个元素
+              return disk1[0] < disk2[0];
+            });
+  // 二阶段，段内排序
+  // 我们将每个磁盘的请求提取出来，进行排序
+  for (int diskId = 0; diskId < maxDisk; ++diskId) {
+    // 创建一个vector来存放该磁盘的所有请求
+    vector<readRequest> diskRequests;
+
+    // 提取该磁盘上的所有请求
+    for (const readRequest &req : readRequestList) {
+      Object obj = object_list.getObject(req.getObjectId());
+      std::vector<int> disk = obj.getObjectDisk();
+      if (disk[0] == diskId) {
+        diskRequests.push_back(req);
+      }
+    }
+
+    // 获取当前磁头的位置
+    int headPosition = diskList[diskId].getHeadPosition();
+
+    // 对磁盘请求队列进行排序
+    std::sort(diskRequests.begin(), diskRequests.end(),
+              [headPosition](const readRequest &r1, const readRequest &r2) {
+                // 根据request的unitId[0]和磁头位置比较
+                Object obj1 = object_list.getObject(r1.getObjectId());
+                Object obj2 = object_list.getObject(r2.getObjectId());
+
+                std::vector<int> unitId1 = obj1.getObjectUnit();
+                std::vector<int> unitId2 = obj2.getObjectUnit();
+
+                int unit1 = unitId1[0];
+                int unit2 = unitId2[0];
+
+                // 判断unitId与磁头位置的距离，越近的排在前面
+                int dist1 = (unit1 >= headPosition)
+                                ? (unit1 - headPosition)
+                                : (unit1 + maxDiskSize - headPosition);
+                int dist2 = (unit2 >= headPosition)
+                                ? (unit2 - headPosition)
+                                : (unit2 + maxDiskSize - headPosition);
+
+                return dist1 < dist2; // 距离更近的排到前面
+              });
+
+    // 将排序后的请求放回原来的位置
+    int index = 0;
+    // 有优化点，这里每次都是从头开始找，想办法让他不从头开始找
+    for (readRequest &req : readRequestList) {
+      Object obj = object_list.getObject(req.getObjectId());
+      std::vector<int> disk = obj.getObjectDisk();
+      if (disk[0] == diskId) {
+        req = diskRequests[index++];
+      }
+    }
+  }
 }

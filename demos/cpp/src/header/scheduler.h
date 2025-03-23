@@ -26,11 +26,11 @@ public:
   // 这里存做而未做
   list<readRequest> readNotRead;
 
-  void myScheduler();
-
   void myDeleteScheduler();
   void myWriteScheduler();
   void myReadScheduler();
+
+  void sortReadRequest(vector<readRequest> &);
 
   //...
 };

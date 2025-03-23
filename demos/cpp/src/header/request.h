@@ -99,13 +99,13 @@ private:
   int request_time_stamp;
   bool is_done;
 
-  public:
-    readRequest() : request_id(0), obj_id(0), request_time_stamp(0), is_done(false) {}
-    void setRequestId(int id) { request_id = id; }
-    int getRequestId(){ return request_id; }
-    void setObjectId(int id) { obj_id = id; }
-    int getObjectId(){ return obj_id; }
-    void setTime(int Time) { request_time_stamp = Time; }
-    int getTime(){ return request_time_stamp; }
-
+public:
+  readRequest()
+      : request_id(0), obj_id(0), request_time_stamp(0), is_done(false) {}
+  void setRequestId(int id) { request_id = id; }
+  int getRequestId() { return request_id; }
+  void setObjectId(int id) { obj_id = id; }
+  int getObjectId() const { return obj_id; }
+  void setTime(int Time) { request_time_stamp = Time; }
+  int getTime() { return request_time_stamp; }
 };
