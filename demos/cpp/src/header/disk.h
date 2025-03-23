@@ -27,9 +27,13 @@ private:
   int max(int a, int b) { return a > b ? a : b; }
   int min(int a, int b) { return a < b ? a : b; }
   void setTagDistribute(); // 这个已经升级到 v2 版本
-
+  vector<int> RCOS{64,  116, 158, 192, 220,
+                   243, 262, 278, 294 /*, 310, 326, 342, 358*/};
   string cache{};
   // vector<char> cache;
+  // 第一个 int 是开始区间，第二个int 是结束区间
+  vector<pair<int, int>> tag_interval; // 16 个tag的区间
+  int func_add_rcos(int distance, bool pre_isornot_read);
 
 public:
   Disk(); // 这个之后改成 V 大小

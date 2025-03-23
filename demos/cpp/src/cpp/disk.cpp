@@ -21,42 +21,119 @@ Disk::Disk() {
 
 // void Disk::reset() { storage.clear(); }
 
-void Disk::setTagDistribute() {
-  // 根据 maxTag 划分磁盘 tag 分区
-  int onetagLenth = maxDiskSize / maxTag;
-  int last_flag = onetagLenth * maxTag + 1;
-  for (int tagId = 1; tagId <= maxTag; tagId++) {
-    int flag = 1;
-    for (; flag <= onetagLenth; flag++) {
-      storage[flag + (tagId - 1) * onetagLenth].tag_id = tagId;
+// void Disk::setTagDistribute() {
+//   // 根据 maxTag 划分磁盘 tag 分区
+//   int onetagLenth = maxDiskSize / maxTag;
+//   int last_flag = onetagLenth * maxTag + 1;
+//   for (int tagId = 1; tagId <= maxTag; tagId++) {
+//     int flag = 1;
+//     for (; flag <= onetagLenth; flag++) {
+//       storage[flag + (tagId - 1) * onetagLenth].tag_id = tagId;
+//     }
+//   }
+//   for (; last_flag <= maxDiskSize; last_flag++) {
+//     storage[last_flag].tag_id = maxTag;
+//   }
+//   // printf("磁盘的tag区间已经划分\n");
+// }
+
+// int Disk::func_add_rcos(int distance, bool pre_isornot_read) {
+//   int r_cos = 0;
+//   int pre_token = pointer.pre_token;
+//   if (pre_isornot_read == false) {
+//     r_cos = 64;
+//   } else {
+//     if (pre_token == 64) {
+//       r_cos = 52;
+//     } else if (pre_token == 52) {
+//       r_cos = 42;
+//     } else if (pre_token == 42) {
+//       r_cos = 34;
+//     } else if (pre_token == 34) {
+//       r_cos = 28;
+//     } else if (pre_token == 28) {
+//       r_cos = 23;
+//     } else if (pre_token == 23) {
+//       r_cos = 19;
+//     } else if (pre_token == 19) {
+//       r_cos = 16;
+//     } else if (pre_token == 16) {
+//       r_cos = 16;
+//     }
+//     return r_cos;
+//   }
+// }
+
+int Disk::func_add_rcos(int distance, bool pre_isornot_read) {
+  int r_cos = 0;
+  int pre_token = pointer.pre_token;
+  if (pre_isornot_read == false) {
+    if (distance > 0 && distance <= 8) {
+      r_cos += RCOS[distance];
+    } else {
+      r_cos += (distance - 8) * 16;
     }
   }
-  for (; last_flag <= maxDiskSize; last_flag++) {
-    storage[last_flag].tag_id = maxTag;
-  }
-  // printf("磁盘的tag区间已经划分\n");
+  // else {
+  //   if (pre_token == 64) {
+  //     // r_cos = 52;
+  //     if (distance > 0 && distance <)
+  //   } else if (pre_token == 52) {
+  //     r_cos = 42;
+  //   } else if (pre_token == 42) {
+  //     r_cos = 34;
+  //   } else if (pre_token == 34) {
+  //     r_cos = 28;
+  //   } else if (pre_token == 28) {
+  //     r_cos = 23;
+  //   } else if (pre_token == 23) {
+  //     r_cos = 19;
+  //   } else if (pre_token == 19) {
+  //     r_cos = 16;
+  //   } else if (pre_token == 16) {
+  //     r_cos = 16;
+  //   }
+
+  // }
+  return r_cos;
 }
 
 void Disk::setTagDistribute_v2() {
   vector<tuple<int, int, int>> diskTagInterval = tagDistributeInAllDisk[1];
+  // 把每个 tag 在磁盘上所占用的区间，push 到 tag_interval 中
+  // int tag_id;
+  int start;
+  int end;
+  for (int i = 0; i < diskTagInterval.size() - 1; i++) {
+    // tag_id = get<0>(diskTagInterval[i]) + 1;
+    start = get<1>(diskTagInterval[i]) + 1;
+    end = get<2>(diskTagInterval[i]) + 1;
+    // 放入的区间是 [ start, end )
+    // tag 从 0 开始 [0, 15]
+    tag_interval.emplace_back(make_pair(start, end));
+  }
+  start = end;
+  end = maxDiskSize + 1;
+  // 放入的区间是 [ start, end )
+  tag_interval.emplace_back(make_pair(start, end));
   // 根据预处理的数据，分配每个 tag 所占用的空间
   // 每个 tag 都有一段固定的区间
   // int tagNum = tagDistributeInAllDisk.size();
-  int tagNum = diskTagInterval.size();
-  for (int i = 0; i < tagNum; i++) {
-    // 它这里的 tag 是从 0 开始的,要加个1
-    // 它的存储单元编号也是从 0 开始的
-    int tag_id = get<0>(diskTagInterval[i]) + 1;
-    int start = get<1>(diskTagInterval[i]) + 1;
-    int end = get<2>(diskTagInterval[i]) + 1;
-    for (int j = start; j < end; j++) {
-      storage[j].tag_id = tag_id;
-    }
-  }
-  int end = get<2>(diskTagInterval[tagNum - 1]) + 1;
-  for (; end <= maxDiskSize; end++) {
-    storage[end].tag_id = maxTag;
-  }
+  // int tagNum = diskTagInterval.size();
+  // for (int i = 0; i < tagNum; i++) {
+  //   // 它这里的 tag 是从 0 开始的,要加个1
+  //   // 它的存储单元编号也是从 0 开始的
+  //   int tag_id = get<0>(diskTagInterval[i]) + 1;
+  //   int start = get<1>(diskTagInterval[i]) + 1;
+  //   int end = get<2>(diskTagInterval[i]) + 1;
+  //   for (int j = start; j < end; j++) {
+  //     storage[j].tag_id = tag_id;
+  //   }
+  // }
+  // int end = get<2>(diskTagInterval[tagNum - 1]) + 1;
+  // for (; end <= maxDiskSize; end++) {
+  //   storage[end].tag_id = maxTag;
+  // }
 }
 
 void Disk::diskPrintCacheClear() { cache.clear(); }
@@ -112,10 +189,10 @@ void Disk::diskWrite(int unit_id, int obj_id, int obj_size) {
   for (int i = unit_id; i < unit_id + obj_size; i++) {
     if (i > maxDiskSize) { // 如果大于磁盘总存储单元总数
       int newI = realPosition(i);
-      storage[newI].object_id = obj_id;
+      // storage[newI].object_id = obj_id;
       storage[newI].is_used = true;
     } else {
-      storage[i].object_id = obj_id;
+      // storage[i].object_id = obj_id;
       storage[i].is_used = true;
     }
   }
@@ -129,10 +206,10 @@ void Disk::diskDelete(int unit_id, int obj_size) {
     // storage[unit_id].object_block_id = k;
     if (i > maxDiskSize) {
       int newI = realPosition(i);
-      storage[newI].object_id = 0;
+      // storage[newI].object_id = 0;
       storage[newI].is_used = false;
     } else {
-      storage[i].object_id = 0;
+      // storage[i].object_id = 0;
       storage[i].is_used = false;
     }
   }
@@ -142,17 +219,37 @@ vector<pair<int, int>> Disk::wherecanput(
     int tag_id) const // 返回所有这个tag的区间, 并且这个区间都是空闲的
 {
   // 这里可能没有涉及到判断循环存储单元
+  // v1 版本，会超时
+  // vector<pair<int, int>> res;
+  // for (int i = 1; i <= maxDiskSize; i++) { // MAX_DISK_SIZE 这个之后应该是
+  // V
+  //   if (storage[i].tag_id == tag_id && storage[i].is_used == false) {
+  //     int start = i;
+  //     while (i <= maxDiskSize && storage[i].tag_id == tag_id &&
+  //            storage[i].is_used == false) {
+  //       i++;
+  //     }
+  //     // 返回的是 [start, i-1]
+  //     res.push_back(make_pair(start, i - 1));
+  //   }
+  // }
+  // v2 版本 运行时间减少 16 倍
   vector<pair<int, int>> res;
-  for (int i = 1; i <= maxDiskSize; i++) { // MAX_DISK_SIZE 这个之后应该是 V
-    if (storage[i].tag_id == tag_id && storage[i].is_used == false) {
+  //
+  int tag_id_new = tag_id - 1;
+  int start_sunwei = tag_interval[tag_id_new].first;
+  int end_sunwei = tag_interval[tag_id_new].second - 1;
+  for (int i = start_sunwei; i <= end_sunwei; i++) {
+    if (storage[i].is_used == false) {
       int start = i;
-      while (i <= maxDiskSize && storage[i].tag_id == tag_id &&
-             storage[i].is_used == false) {
+      while (i <= end_sunwei && storage[i].is_used == false) {
         i++;
       }
-      res.push_back(make_pair(start, i - 1));
+      // 返回的是 [start, i-1]
+      res.emplace_back(make_pair(start, i - 1));
     }
   }
+
   // 按照区间长度 从大到小 排序
   // sort(res.begin(), res.end(),
   //      [](const pair<int, int> &a, const pair<int, int> &b) {
@@ -169,6 +266,66 @@ int Disk::remainTokens() { return pointer.token; }
 // 返回值大于maxToken 即只能 Jump
 // path: false: pass过去, true: read过去
 // howManyTokensCost 返回读这个 objunit 的 token 预花费数
+
+// int Disk::howManyTokensCost(int objUnit, bool &path) {
+
+//   int position = pointer.current_position;
+//   // int distance = objUnit - position; // 有正有负
+//   int distance = pathLen(position, objUnit);
+//   int p_cos;
+//   int r_cos = 0;
+//   if (distance == 0) {
+//     // 如果磁头正好在要读存储单元的位置
+//     if (pointer.pre_is_read == false) {
+//       path = true;
+//       return 64;
+//     } else {
+//       int pre_token = pointer.pre_token;
+//       r_cos += max(ceil(pre_token * 0.8), 16);
+//       // pre_token = max(ceil(pre_token * 0.8), 16);
+//       path = true;
+//       return r_cos;
+//     }
+//   }
+
+//   // 可以read或者pass过去的情况
+//   else if (distance >= 0 && distance < maxToken) {
+//     // 计算p_cos的值，一路pass过去的消耗
+//     p_cos = distance + 64;
+//     // 计算r_cos的值，一路读过去的消耗
+//     if (pointer.pre_is_read == true) {
+//       int pre_token = pointer.pre_token;
+//       for (int i = 0; i <= distance; i++) {
+//         r_cos += max(ceil(pre_token * 0.8), 16);
+//         pre_token = max(ceil(pre_token * 0.8), 16);
+//       }
+//     } else if (pointer.pre_is_read == false) {
+//       int TempTokens = 64;
+//       for (int i = 0; i <= distance; i++) {
+//         if (i == 0) {
+//           r_cos += TempTokens;
+//           TempTokens = 64;
+//         } else {
+//           r_cos += max(ceil(TempTokens * 0.8), 16);
+//           TempTokens = max(ceil(TempTokens * 0.8), 16);
+//         }
+//       }
+//     }
+
+//     int minTempToken = min(p_cos, r_cos);
+//     (minTempToken == p_cos) ? path = 0 : path = 1;
+//     return minTempToken;
+//   } else {
+//     // 磁头 和 要读位置的距离大于等于 maxToken
+//     if (pointer.token == maxToken) {
+//       // 剩余的token 都没有消耗，才能执行跳 的 操作；
+//       return maxToken + 1;
+//     }
+//     // 能执行到这里说明想要跳但是当前时间片有消耗，就没办法跳，不能进行操作
+//     return maxToken + 2;
+//   }
+// }
+
 int Disk::howManyTokensCost(int objUnit, bool &path) {
 
   int position = pointer.current_position;
@@ -191,10 +348,10 @@ int Disk::howManyTokensCost(int objUnit, bool &path) {
   }
 
   // 可以read或者pass过去的情况
-  else if (distance >= 0 && distance < maxToken) {
+  else if (distance > 0 && distance < maxToken) {
     // 计算p_cos的值，一路pass过去的消耗
     p_cos = distance + 64;
-    // 计算r_cos的值，一路读过去的消耗
+    // 计算r_cos的值
     if (pointer.pre_is_read == true) {
       int pre_token = pointer.pre_token;
       for (int i = 0; i <= distance; i++) {
@@ -202,17 +359,19 @@ int Disk::howManyTokensCost(int objUnit, bool &path) {
         pre_token = max(ceil(pre_token * 0.8), 16);
       }
     } else if (pointer.pre_is_read == false) {
-      int TempTokens = 64;
-      for (int i = 0; i <= distance; i++) {
-        if (i == 0) {
-          r_cos += TempTokens;
-          TempTokens = 64;
-        } else {
-          r_cos += max(ceil(TempTokens * 0.8), 16);
-          TempTokens = max(ceil(TempTokens * 0.8), 16);
-        }
-      }
+      // int TempTokens = 64;
+      // for (int i = 0; i <= distance; i++) {
+      //   if (i == 0) {
+      //     r_cos += TempTokens;
+      //     TempTokens = 64;
+      //   } else {
+      //     r_cos += max(ceil(TempTokens * 0.8), 16);
+      //     TempTokens = max(ceil(TempTokens * 0.8), 16);
+      //   }
+      // }
+      r_cos += func_add_rcos(distance, pointer.pre_is_read);
     }
+    // r_cos = func_add_rcos(distance, pointer.pre_is_read);
 
     int minTempToken = min(p_cos, r_cos);
     (minTempToken == p_cos) ? path = 0 : path = 1;
@@ -262,16 +421,16 @@ bool Disk::diskRead(int unit_id) {
     for (int d = 0; d <= pathLen(pointer.current_position, unit_id); d++) {
       if (pointer.pre_is_read == false) {
         // if (pointer.token - 64 < 0) {
-        //   pointer.current_position = realPosition(pointer.current_position +
-        //   d); return false;
+        //   pointer.current_position = realPosition(pointer.current_position
+        //   + d); return false;
         // }
         pointer.token -= 64;
         pointer.pre_is_read = true;
         pointer.pre_token = 64;
       } else {
         // if (pointer.token - max(ceil(pointer.pre_token * 0.8), 16) < 0) {
-        //   pointer.current_position = realPosition(pointer.current_position +
-        //   d); return false;
+        //   pointer.current_position = realPosition(pointer.current_position
+        //   + d); return false;
         // }
         pointer.token -= max(ceil(pointer.pre_token * 0.8), 16);
         pointer.pre_token = max(ceil(pointer.pre_token * 0.8), 16);
