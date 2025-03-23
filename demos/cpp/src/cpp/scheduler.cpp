@@ -125,8 +125,6 @@ void Scheduler::myReadScheduler() {
 
   /***********************************************然后遍历*********************************************/
 
-  for (int i{0}; i < readRequestList.size(); i++) {
-  }
   // 第一个参数是是否读成功，第二参数是读了多少个对象块，第三个参数是这次读的磁盘号，第四个参数是起始Unit位置，第五个参数是如果这个请求要做未做就true
   tuple<bool, int, int, int, bool> isdone5;
   tuple<bool, int> isdone2;
