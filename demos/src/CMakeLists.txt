@@ -1,4 +1,4 @@
-file(GLOB HEllOLIB_SRC_POOL ${PROJECT_SOURCE_DIR}/src/cpp/*.cpp)
+file(GLOB HEllOLIB_SRC_POOL ${PROJECT_SOURCE_DIR}/src/*.cpp)
 
 # create a  library from the collected source files
 add_library(NDSL SHARED ${HEllOLIB_SRC_POOL})
