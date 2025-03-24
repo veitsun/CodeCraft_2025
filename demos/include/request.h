@@ -21,21 +21,6 @@ private:
   int obj_size;   // 对象大小
   int obj_tag;    // 对象标签
   int request_time_stamp;
-  // int obj_size;
-  // int obj_blockid;
-  // int action;
-  // int disk_id;
-  // int disk_blockid;
-  // int disk_unitid;
-  // int disk_position;
-  // int token;
-  // int extra_time;
-  // int fre_per_slicing;
-  // int rep_num;
-  // int max_disk_num;
-  // int max_disk_size;
-  // int max_request_num;
-  // int max_object_num;
 
 public:
   // 初始化

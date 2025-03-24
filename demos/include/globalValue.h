@@ -1,9 +1,9 @@
 #pragma once
-#include "delRequestList.h"
 #include "disk.h"
 #include "objectList.h"
-#include "readRequestList.h"
-#include "writeRequestList.h"
+#include "requestDelList.h"
+#include "requestReadList.h"
+#include "requestWriteList.h"
 
 // 全局声明
 extern vector<Disk> diskList;

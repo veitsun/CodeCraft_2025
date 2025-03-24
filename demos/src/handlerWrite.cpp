@@ -72,6 +72,7 @@ bool handlerwrite::handlerRequestfromScheduler(writeRequest writeRequest) {
   obj.setObjectId(writeRequest.getObjectId());
   obj.setObjectSize(writeRequest.getObjectSize());
   obj.setObjectTag(writeRequest.getObjectTag());
+  // obj.setObjectRequest(writeRequest.getObjectRequest());
   obj.setObjectDisk(diskNum);
   obj.setObjectUnit(unit);
   object_list.addObject(obj);
