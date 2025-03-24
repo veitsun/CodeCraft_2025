@@ -13,6 +13,7 @@
 #include "diskUnit.h"
 #include <cstdio>
 #include <string>
+#include <utility>
 #include <vector>
 
 using namespace std;
@@ -34,11 +35,19 @@ private:
   // 第一个 int 是开始区间，第二个int 是结束区间
   vector<pair<int, int>> tag_interval; // 16 个tag的区间
   int func_add_rcos(int distance, bool pre_isornot_read);
+  int freeUnitSize;
+  int freeMaxTagIntervalSize;
+  int freeMaxTagIntervalStart = 0;
+  int freeMaxTagIntervalEnd = 0;
 
 public:
   Disk(); // 这个之后改成 V 大小
   ~Disk() {}
+  vector<vector<pair<int, int>>> free_interval; // 每个tag 的空闲空间
   bool isNotNum_func(char c);
+  int getfreeUnitSize() const { return freeUnitSize; }
+  tuple<int, int, int> getfreeMaxTagIntervalSize();
+
   // void addObjectInDisk();
   void setTagDistribute_v2();
   void diskPrintCacheClear();
@@ -48,12 +57,14 @@ public:
   // 最新版本是我不需要提供磁盘块号，我只是单个磁盘的抽象
   void getOncetimeDiskHeadAction();
 
-  void diskWrite(int unit_id, int obj_id, int obj_size); // 写功能
+  void diskWrite(int unit_id, int obj_id, int obj_size);             // 写功能
+  void diskWrite(int unit_id, int obj_id, int obj_size, int tag_id); // 写功能
 
-  void diskDelete(int unit_id, int obj_size); // 删除功能
+  void diskDelete(int unit_id, int obj_size);             // 删除功能
+  void diskDelete(int unit_id, int obj_size, int tag_id); // 删除功能
 
-  vector<pair<int, int>> wherecanput(
-      int tag_id) const; // 返回所有这个tag的区间, 并且这个区间都是空闲的
+  vector<pair<int, int>>
+  wherecanput(int tag_id); // 返回所有这个tag的区间, 并且这个区间都是空闲的
 
   // tuple<int tag_id, int start, int end
   vector<tuple<int, int, int>> getTagInterval(int tag) const;
@@ -68,32 +79,4 @@ public:
   bool executeJump(int unit_id); // 需要执行jump操作,这是具体的执行动作
 
   int realPosition(int unit_relative_id); // 因为是循环的存储单元队列
-
-  // std::vector<DiskUnit> getDiskState(); // 返回磁盘块的磁盘单元数组
-  // vector<pair<int, int>>
-  // getStorageUnitIntervalByTag(int tag_id) const; // 返回所有这个tag的区间
-  // pair<int, int> getDiskHead();
-  // DiskUnit getStorageUnit(
-  //     int Unitindex) const; // 传入存储单元编号，返回磁盘单元中的数据对象
-  // void setStorageUnit(
-  //     int Unitindex,
-  //     DiskUnit unit); // 传入存储单元编号，和要存入的对象。返回值为空.
-
-  // void diskRead(int action, int unit_id);
-
-  // void executeAction(int action, int unit_id, int obj_id, int obj_blockid);
-
-  // void writeValueByTag(int unit_id, int obj_id, int obj_blockid, int tag_id);
-
-  // void deleteStorageUnit(int Unitindex); // 删除磁盘块的磁盘单元数组中的数据
-};
-
-class NewDisk {
-private:
-  /* data */
-  vector<DiskNewUnit> storage;
-  vector<SonDisk> sonDiskList;
-
-public:
-  NewDisk(vector<int> tagVector);
 };
