@@ -36,9 +36,6 @@ private:
   vector<pair<int, int>> tag_interval; // 16 个tag的区间
   int func_add_rcos(int distance, bool pre_isornot_read);
   int freeUnitSize;
-  int freeMaxTagIntervalSize;
-  int freeMaxTagIntervalStart = 0;
-  int freeMaxTagIntervalEnd = 0;
 
 public:
   Disk(); // 这个之后改成 V 大小

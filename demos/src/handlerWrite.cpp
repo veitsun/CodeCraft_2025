@@ -38,9 +38,11 @@ bool handlerwrite::handlerRequestfromScheduler(writeRequest writeRequest) {
       }
       if (flag >= 1)
         break;
+      if (diskList[i].getfreeUnitSize() < writeRequest.getObjectSize())
+        continue;
       section = diskList[i].wherecanput(writeRequest.getObjectTag(),
                                         writeRequest.getObjectSize());
-      // 假设返回的section存在可以放的
+      // 假设返回的section可以放
       {
         bool shifouyoukongjianfang = get<0>(section);
         int start = get<1>(section);

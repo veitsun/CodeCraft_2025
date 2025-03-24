@@ -16,7 +16,6 @@ using namespace std;
 
 Disk::Disk() {
   freeUnitSize = maxDiskSize;
-  freeMaxTagIntervalSize = 0;
   storage.resize(maxDiskSize + 1);
 }
 
@@ -59,13 +58,13 @@ void Disk::setTagDistribute_v2() {
   // }
 }
 
-tuple<int, int, int> Disk::getfreeMaxTagIntervalSize() {
-  tuple<int, int, int> temp;
-  get<0>(temp) = freeMaxTagIntervalSize;
-  get<1>(temp) = freeMaxTagIntervalStart;
-  get<2>(temp) = freeMaxTagIntervalEnd;
-  return temp;
-}
+// tuple<int, int, int> Disk::getfreeMaxTagIntervalSize() {
+//   tuple<int, int, int> temp;
+//   get<0>(temp) = freeMaxTagIntervalSize;
+//   get<1>(temp) = freeMaxTagIntervalStart;
+//   get<2>(temp) = freeMaxTagIntervalEnd;
+//   return temp;
+// }
 
 void Disk::diskPrintCacheClear() { cache.clear(); }
 
