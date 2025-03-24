@@ -57,14 +57,14 @@ public:
   // 最新版本是我不需要提供磁盘块号，我只是单个磁盘的抽象
   void getOncetimeDiskHeadAction();
 
-  void diskWrite(int unit_id, int obj_id, int obj_size);             // 写功能
-  void diskWrite(int unit_id, int obj_id, int obj_size, int tag_id); // 写功能
+  void diskWrite(int unit_id, int obj_size);             // 写功能
+  void diskWrite(int unit_id, int obj_size, int tag_id); // 写功能
 
   void diskDelete(int unit_id, int obj_size);             // 删除功能
   void diskDelete(int unit_id, int obj_size, int tag_id); // 删除功能
 
-  vector<pair<int, int>>
-  wherecanput(int tag_id); // 返回所有这个tag的区间, 并且这个区间都是空闲的
+  // 返回这个磁盘有没有空闲空间存，空闲空间起始位置 结束位置
+  tuple<bool, int, int> wherecanput(int tag_id, int obj_size);
 
   // tuple<int tag_id, int start, int end
   vector<tuple<int, int, int>> getTagInterval(int tag) const;

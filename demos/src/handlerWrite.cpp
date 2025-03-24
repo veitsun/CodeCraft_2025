@@ -18,7 +18,7 @@ int handlerwrite::static_read_diskid = 0;
 bool handlerwrite::handlerRequestfromScheduler(writeRequest writeRequest) {
   bool isDone = false;
   // int diskUnique = 0; // 控制每个rep写到不同磁盘
-  vector<pair<int, int>> section;
+  tuple<bool, int, int> section;
   vector<int> diskNum;
   vector<int> unit;
   diskNum.resize(REP_NUM);
@@ -38,29 +38,25 @@ bool handlerwrite::handlerRequestfromScheduler(writeRequest writeRequest) {
       }
       if (flag >= 1)
         break;
-      section = diskList[i].wherecanput(writeRequest.getObjectTag());
+      section = diskList[i].wherecanput(writeRequest.getObjectTag(),
+                                        writeRequest.getObjectSize());
       // 假设返回的section存在可以放的
-      for (int j{0}; j < section.size(); j++) {
-        // printf("%d+++++%d\n", section[j].second - section[j].first,
-        //        writeRequest.getObjectSize());
-        if ((section[j].second - section[j].first + 1) >=
-            writeRequest.getObjectSize()) {
+      {
+        bool shifouyoukongjianfang = get<0>(section);
+        int start = get<1>(section);
+        int end = get<2>(section);
+        if (shifouyoukongjianfang == true) {
           // 这里的判断是如果能放下的话就调用handler来放，但是现在V1，感觉这里可以直接调用disk
-          diskList[i].diskWrite(section[j].first, writeRequest.getObjectId(),
-                                writeRequest.getObjectSize());
+          diskList[i].diskWrite(start, writeRequest.getObjectSize());
           diskNum[rep] = i + 1;
-          unit[rep] = section[j].first;
+          unit[rep] = start;
           flag++;
-          // diskUnique++;
           static_read_diskid = i + 1;
           isDone = true;
           completeObjId = writeRequest.getObjectId();
           completeRep[rep] = i + 1;
-          // for (int unitId{section[j].first}; i <
-          // writeRequest.getObjectSize();
-          for (int unitId{section[j].first};
-               unitId <= (section[j].first + writeRequest.getObjectSize() - 1);
-               unitId++) {
+          for (int unitId{start};
+               unitId <= (start + writeRequest.getObjectSize() - 1); unitId++) {
             completeUnitId[rep].emplace_back(unitId);
           }
           break;

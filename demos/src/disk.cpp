@@ -97,7 +97,7 @@ void Disk::getOncetimeDiskHeadAction() {
   }
 }
 
-void Disk::diskWrite(int unit_id, int obj_id, int obj_size) {
+void Disk::diskWrite(int unit_id, int obj_size) {
   freeUnitSize -= obj_size;
   for (int i = unit_id; i < unit_id + obj_size; i++) {
     if (i > maxDiskSize) { // 如果大于磁盘总存储单元总数
@@ -110,7 +110,7 @@ void Disk::diskWrite(int unit_id, int obj_id, int obj_size) {
     }
   }
 }
-void Disk::diskWrite(int unit_id, int obj_id, int obj_size, int tag_id) {
+void Disk::diskWrite(int unit_id, int obj_size, int tag_id) {
   for (int i = unit_id; i < unit_id + obj_size; i++) {
     if (i > maxDiskSize) { // 如果大于磁盘总存储单元总数
       int newI = realPosition(i);
@@ -229,42 +229,38 @@ void Disk::diskDelete(int unit_id, int obj_size, int tag_id) {
     free_space.push_back({deleted_start, deleted_end});
   }
 }
-vector<pair<int, int>>
-Disk::wherecanput(int tag_id) // 返回所有这个tag的区间, 并且这个区间都是空闲的
-{
-  // v2 版本 运行时间减少 16 倍,但实际上没有减少
-  vector<pair<int, int>> res;
-  freeMaxTagIntervalSize = 0;
-  freeMaxTagIntervalStart = 0;
-  freeMaxTagIntervalEnd = 0;
+
+tuple<bool, int, int> Disk::wherecanput(int tag_id, int obj_size) {
+  // freeMaxTagIntervalSize = 0;
+  // freeMaxTagIntervalStart = 0;
+  // freeMaxTagIntervalEnd = 0;
   //
+  bool youmeiyoukongjiancun = false;
+  int start = -1;
+  int end = -1;
   int tag_id_new = tag_id - 1;
   int start_sunwei = tag_interval[tag_id_new].first;
   int end_sunwei = tag_interval[tag_id_new].second - 1;
   for (int i = start_sunwei; i <= end_sunwei; i++) {
     if (storage[i].is_used == false) {
-      int start = i;
+      start = i;
       while (i <= end_sunwei && storage[i].is_used == false) {
         i++;
       }
       // 返回的是 [start, i-1]
-      if (i - start > freeMaxTagIntervalSize) {
-        freeMaxTagIntervalSize = i - start;
-        freeMaxTagIntervalStart = start;
-        freeMaxTagIntervalEnd = i - 1;
+      // if (i - start > freeMaxTagIntervalSize) {
+      //   freeMaxTagIntervalSize = i - start;
+      //   freeMaxTagIntervalStart = start;
+      //   freeMaxTagIntervalEnd = i - 1;
+      // }
+      end = i - 1;
+      if (end - start + 1 >= obj_size) {
+        youmeiyoukongjiancun = true;
+        break;
       }
-      res.emplace_back(make_pair(start, i - 1));
     }
   }
-
-  // 按照区间长度 从大到小 排序
-  // sort(res.begin(), res.end(),
-  //      [](const pair<int, int> &a, const pair<int, int> &b) {
-  //        int length_a = a.second - a.first + 1; // 区间长度
-  //        int length_b = b.second - b.first + 1; // 区间长度
-  //        return length_a > length_b;            // 从大到小排序
-  //      });
-  return res;
+  return make_tuple(youmeiyoukongjiancun, start, end);
 }
 
 // vector<pair<int, int>> Disk::wherecanput(
